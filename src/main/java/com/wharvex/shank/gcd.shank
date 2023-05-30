@@ -1,0 +1,41 @@
+{ comment}
+
+
+define gcdIter(a, b : integer; var divisor : integer)
+variables newA, newB, remainder : integer
+    newA := a
+    newB := b
+    while newA mod newB > 0
+        remainder := newA mod newB
+        newA := newB
+        newB := remainder
+    divisor := newB
+
+
+define gcdRec(a, b : integer; var divisor : integer)
+    if b = 0 then
+        divisor := a
+    else
+        { Can Shank evaluate expressions that are passed in as arguments
+        when calling a function? }
+        gcdRec b, a mod b, var divisor
+
+
+define start()
+variables divisorArg : integer
+    { Expected output: 1 }
+    gcdRec 57, 25, var divisorArg
+    Write "GCD of 57 and 25. Expected: 1. Calculated: "+divisorArg
+
+    { Expected output: 5 }
+    gcdIter 55, 25, var divisorArg
+    Write "GCD of 55 and 25. Expected: 5. Calculated: "+divisorArg
+
+    { Expected output: 4 }
+    gcdRec 460, 64, var divisorArg
+    Write "GCD of 460 and 64. Expected: 4. Calculated: "+divisorArg
+
+    { Expected output: 9 }
+    gcdIter 1035, 747, var divisorArg
+    Write "GCD of 1035 and 747. Expected: 9. Calculated:",divisorArg
+    Write ""
