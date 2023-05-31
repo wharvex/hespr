@@ -21,6 +21,8 @@ import java.util.List;
 
 public class SemanticAnalysis {
 
+  // todo: incorporate range checks on variables
+
   private ProgramNode program;
 
   public SemanticAnalysis(ProgramNode program) {

@@ -171,21 +171,14 @@ public class Parser {
   }
 
   private MathOpNode.MathOpType getMathOpTypeFromTokenType(Token.TokenType tt) {
-    switch (tt) {
-      case PLUS:
-        return MathOpNode.MathOpType.ADD;
-      case MINUS:
-        return MathOpNode.MathOpType.SUBTRACT;
-      case TIMES:
-        return MathOpNode.MathOpType.MULTIPLY;
-      case DIVIDE:
-        return MathOpNode.MathOpType.DIVIDE;
-      case MOD:
-        return MathOpNode.MathOpType.MOD;
-
-      default:
-        return null;
-    }
+    return switch (tt) {
+      case PLUS -> MathOpNode.MathOpType.ADD;
+      case MINUS -> MathOpNode.MathOpType.SUBTRACT;
+      case TIMES -> MathOpNode.MathOpType.MULTIPLY;
+      case DIVIDE -> MathOpNode.MathOpType.DIVIDE;
+      case MOD -> MathOpNode.MathOpType.MOD;
+      default -> null;
+    };
   }
 
   /**
@@ -202,14 +195,9 @@ public class Parser {
     term1 = this.term();
     Token.TokenType peekRet1 = this.peek(0);
     switch (peekRet1) {
-      case PLUS:
-        mathOpType = MathOpNode.MathOpType.ADD;
-        break;
-      case MINUS:
-        mathOpType = MathOpNode.MathOpType.SUBTRACT;
-        break;
-
-      default:
+      case PLUS -> mathOpType = MathOpNode.MathOpType.ADD;
+      case MINUS -> mathOpType = MathOpNode.MathOpType.SUBTRACT;
+      default -> {
         if (!this.isTokenTypeTermOp(peekRet1)) {
           return term1;
         }
@@ -217,6 +205,7 @@ public class Parser {
             this.getMathOpTypeFromTokenType(this.matchAndRemove(peekRet1).getTokenType()),
             term1,
             this.expression());
+      }
     }
     // Eat the expOp
     this.matchAndRemove(peekRet1);
