@@ -4,8 +4,9 @@ public class RealNode extends Node {
 
   private float val;
 
-  public RealNode(float val) {
+  public RealNode(float val, int lineNum) {
     this.val = val;
+    this.lineNum = lineNum;
   }
 
   public float getVal() {

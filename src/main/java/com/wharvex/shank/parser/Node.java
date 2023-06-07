@@ -2,15 +2,17 @@ package com.wharvex.shank.parser;
 
 public abstract class Node {
 
+  Node() {}
+
   public int getLineNum() {
-    return lineNum;
+    return this.lineNum;
   }
 
   public void setLineNum(int lineNum) {
     this.lineNum = lineNum;
   }
 
-  private int lineNum;
+  protected int lineNum;
 
   public abstract String toString();
 }

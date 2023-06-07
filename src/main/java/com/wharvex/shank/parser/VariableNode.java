@@ -41,7 +41,7 @@ public class VariableNode extends Node {
       int to,
       boolean isArray,
       float realFrom,
-      float realTo) {
+      float realTo, int lineNum) {
     this.name = name;
     this.type = type;
     this.changeable = changeable;
@@ -50,6 +50,7 @@ public class VariableNode extends Node {
     this.isArray = isArray;
     this.realFrom = realFrom;
     this.realTo = realTo;
+    this.lineNum = lineNum;
   }
 
   /**

@@ -4,8 +4,9 @@ public class BooleanNode extends Node {
 
   private boolean val;
 
-  public BooleanNode(boolean val) {
+  public BooleanNode(boolean val, int lineNum) {
     this.val = val;
+    this.lineNum = lineNum;
   }
 
   public boolean getVal() {

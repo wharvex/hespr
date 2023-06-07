@@ -1,7 +1,9 @@
 package com.wharvex.shank.parser;
 
 import com.wharvex.shank.SyntaxErrorException;
+import com.wharvex.shank.SyntaxErrorException.ExcType;
 import com.wharvex.shank.lexer.Token;
+import com.wharvex.shank.lexer.Token.TokenType;
 import com.wharvex.shank.parser.builtins.BuiltinEnd;
 import com.wharvex.shank.parser.builtins.BuiltinGetRandom;
 import com.wharvex.shank.parser.builtins.BuiltinIntegerToReal;
@@ -13,8 +15,10 @@ import com.wharvex.shank.parser.builtins.BuiltinRight;
 import com.wharvex.shank.parser.builtins.BuiltinSquareRoot;
 import com.wharvex.shank.parser.builtins.BuiltinStart;
 import com.wharvex.shank.parser.builtins.BuiltinSubstring;
+import com.wharvex.shank.semantic.SemanticErrorException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Parser {
@@ -59,7 +63,8 @@ public class Parser {
   }
 
   private String peekToString() {
-    return this.peekToken(0) != null ? this.peekToken(0).toString() : "NULL";
+    Token peekTokenRet = this.peekToken(0);
+    return peekTokenRet != null ? peekTokenRet.toString() : "EOF";
   }
 
   /**
@@ -72,6 +77,10 @@ public class Parser {
     return this.tokensNotEmpty() && this.tokens.get(0).getTokenType() == tokenType
         ? this.tokens.remove(0)
         : null;
+  }
+
+  private void removePlain() {
+    this.tokens.remove(0);
   }
 
   /**
@@ -151,7 +160,7 @@ public class Parser {
       peekRet = this.peek(0);
     }
     while (peekRet == Token.TokenType.DEFINE) {
-      func = this.function();
+      func = this.parseFunc();
       program.addFunction(func);
       peekRet = this.peek(0);
     }
@@ -193,7 +202,11 @@ public class Parser {
     // Find term and expression operator
 
     term1 = this.term();
-    Token.TokenType peekRet1 = this.peek(0);
+    Token peekTokenRet = this.peekToken(0);
+    if (peekTokenRet == null) {
+      return term1;
+    }
+    Token.TokenType peekRet1 = peekTokenRet.getTokenType();
     switch (peekRet1) {
       case PLUS -> mathOpType = MathOpNode.MathOpType.ADD;
       case MINUS -> mathOpType = MathOpNode.MathOpType.SUBTRACT;
@@ -201,10 +214,11 @@ public class Parser {
         if (!this.isTokenTypeTermOp(peekRet1)) {
           return term1;
         }
+        this.removePlain();
         return new MathOpNode(
-            this.getMathOpTypeFromTokenType(this.matchAndRemove(peekRet1).getTokenType()),
+            this.getMathOpTypeFromTokenType(peekRet1),
             term1,
-            this.expression());
+            this.expression(), peekTokenRet.getTokenLineNum());
       }
     }
     // Eat the expOp
@@ -226,11 +240,11 @@ public class Parser {
       peekRet2 = this.peek(2);
     }
     if (this.isTokenTypeTermOp(peekRet2)) {
-      return new MathOpNode(mathOpType, term1, this.expression());
+      return new MathOpNode(mathOpType, term1, this.expression(), peekTokenRet.getTokenLineNum());
     } else if (this.isTokenTypeExpOp(peekRet2)) {
-      return new MathOpNode(mathOpType, term1, this.expression());
+      return new MathOpNode(mathOpType, term1, this.expression(), peekTokenRet.getTokenLineNum());
     }
-    return new MathOpNode(mathOpType, term1, this.factor());
+    return new MathOpNode(mathOpType, term1, this.factor(), peekTokenRet.getTokenLineNum());
   }
 
   /**
@@ -240,43 +254,48 @@ public class Parser {
    */
   private Node term() throws Exception {
     Node factor1;
-    Token termOp;
     MathOpNode.MathOpType mathOpType;
 
-    // Find factor and term operator
+    // Find factor and math operator type
 
-    // TODO: make this a switch statement
     factor1 = this.factor();
-    termOp = this.matchAndRemove(Token.TokenType.TIMES);
-    if (termOp == null) {
-      termOp = this.matchAndRemove(Token.TokenType.MOD);
-      if (termOp == null) {
-        termOp = this.matchAndRemove(Token.TokenType.DIVIDE);
-        if (termOp == null) {
-          return factor1;
-        } else {
-          mathOpType = MathOpNode.MathOpType.DIVIDE;
-        }
-      } else {
+    Token peekTokenRet = this.peekToken(0);
+    // Need to null-check before the switch statement because switch dereferences its argument
+    if (peekTokenRet == null) {
+      return factor1;
+    }
+    Token.TokenType peekRet = peekTokenRet.getTokenType();
+    switch (peekRet) {
+      case TIMES -> {
+        this.removePlain();
+        mathOpType = MathOpNode.MathOpType.MULTIPLY;
+      }
+      case MOD -> {
+        this.removePlain();
         mathOpType = MathOpNode.MathOpType.MOD;
       }
-    } else {
-      mathOpType = MathOpNode.MathOpType.MULTIPLY;
+      case DIVIDE -> {
+        this.removePlain();
+        mathOpType = MathOpNode.MathOpType.DIVIDE;
+      }
+      default -> {
+        return factor1;
+      }
     }
 
     // Peek and return
 
-    Token.TokenType peekRet1 = this.peek(0);
-    if (!this.isTokenTypeFactor(peekRet1)) {
+    peekRet = this.peek(0);
+    Token.TokenType peekRet2 = this.peek(1);
+    if (!this.isTokenTypeFactor(peekRet)) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.TERM_ERROR, "second factor", this.peekToString());
     }
-    if (peekRet1 == Token.TokenType.MINUS && !this.isTokenTypeNumber(this.peek(1))) {
+    if (peekRet == Token.TokenType.MINUS && !this.isTokenTypeNumber(peekRet2)) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.TERM_ERROR, "second factor", "minus " + this.peekToString());
     }
-    Token.TokenType peekRet2 = this.peek(1);
-    if (this.isTokenTypeNumber(peekRet2) && peekRet1 != Token.TokenType.LPAREN) {
+    if (this.isTokenTypeNumber(peekRet2) && peekRet != Token.TokenType.LPAREN) {
       peekRet2 = this.peek(2);
     }
     int rParenPos = this.findRParen();
@@ -284,9 +303,9 @@ public class Parser {
       peekRet2 = this.peek(rParenPos + 1);
     }
     if (this.isTokenTypeTermOp(peekRet2)) {
-      return new MathOpNode(mathOpType, factor1, this.term());
+      return new MathOpNode(mathOpType, factor1, this.term(), peekTokenRet.getTokenLineNum());
     }
-    return new MathOpNode(mathOpType, factor1, this.factor());
+    return new MathOpNode(mathOpType, factor1, this.factor(), peekTokenRet.getTokenLineNum());
   }
 
   /**
@@ -296,18 +315,27 @@ public class Parser {
    */
   private Node factor() throws Exception {
     String minusOrEmpty = this.matchAndRemove(Token.TokenType.MINUS) != null ? "-" : "";
-    Token.TokenType peekRet = this.peek(0);
+    Token peekTokenRet = this.peekToken(0);
+    if (peekTokenRet == null) {
+      return null;
+    }
+    Token.TokenType peekRet = peekTokenRet.getTokenType();
+    int lineNum = peekTokenRet.getTokenLineNum();
+    String valStr = peekTokenRet.getValueString();
     switch (peekRet) {
-      case NUMBER:
-        return new IntegerNode(
-            Integer.parseInt(minusOrEmpty + this.matchAndRemove(peekRet).getValueString()));
-      case NUMBER_DECIMAL:
-        return new RealNode(
-            Float.parseFloat(minusOrEmpty + this.matchAndRemove(peekRet).getValueString()));
-      case IDENTIFIER:
+      case NUMBER -> {
+        this.removePlain();
+        return new IntegerNode(Integer.parseInt(minusOrEmpty + valStr), lineNum);
+      }
+      case NUMBER_DECIMAL -> {
+        this.removePlain();
+        return new RealNode(Float.parseFloat(minusOrEmpty + valStr), lineNum);
+      }
+      case IDENTIFIER -> {
         return this.parseVarRef();
-      case LPAREN:
-        this.matchAndRemove(peekRet);
+      }
+      case LPAREN -> {
+        this.removePlain();
         Node expRet = this.expression();
         if (expRet == null) {
           throw new SyntaxErrorException(
@@ -318,16 +346,22 @@ public class Parser {
               SyntaxErrorException.ExcType.FACTOR_ERROR, "right paren", this.peekToString());
         }
         return expRet;
-      case TRUE:
-        this.matchAndRemove(Token.TokenType.TRUE);
-        return new BooleanNode(true);
-      case FALSE:
-        this.matchAndRemove(Token.TokenType.FALSE);
-        return new BooleanNode(false);
-      case STRINGLITERAL:
-        return new StringNode(this.matchAndRemove(peekRet).getValueString());
-      default:
+      }
+      case TRUE -> {
+        this.removePlain();
+        return new BooleanNode(true, lineNum);
+      }
+      case FALSE -> {
+        this.removePlain();
+        return new BooleanNode(false, lineNum);
+      }
+      case STRINGLITERAL -> {
+        this.removePlain();
+        return new StringNode(valStr, lineNum);
+      }
+      default -> {
         return null;
+      }
     }
   }
 
@@ -382,22 +416,14 @@ public class Parser {
    * function() processes a function. It expects a define token. Then an identifier (the name). Then
    * a left paren. Then a list of 0 or more variable declarations. Then a right paren. Then an
    * endOfLine. Then constants and variables (arbitrary number). Then an indent. Then statements.
-   * Then a dedent. It returns a FunctionNode or null.
-   *
-   * <p>After the signature, constants, and variables, function() should expect indent, then (for
-   * Parser 2) call expression() until it returns null and print the resultant expressions (just to
-   * make sure that the parsing is still correct) then expect dedent
+   * Then a dedent. It returns a FunctionNode or null. Returning null
    *
    * <p>TODO: break this up into smaller functions
    *
-   * <p>TODO: constant section should be optional, but parser gives an error if it does not appear.
-   * (According to grader's comments. I could not reproduce this error.)
-   *
    * @return FunctionNode or null if no define TOKEN is found
    */
-  private FunctionNode function() throws Exception {
-    Token define = this.matchAndRemove(Token.TokenType.DEFINE);
-    if (define == null) {
+  private FunctionNode parseFunc() throws Exception {
+    if (this.matchAndRemove(Token.TokenType.DEFINE) == null) {
       return null;
     }
     Token funcName = this.matchAndRemove(Token.TokenType.IDENTIFIER);
@@ -405,13 +431,11 @@ public class Parser {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR, "function name", this.peekToString());
     }
-    Token lparen = this.matchAndRemove(Token.TokenType.LPAREN);
-    if (lparen == null) {
+    if (this.matchAndRemove(Token.TokenType.LPAREN) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR, "left paren", this.peekToString());
     }
-    int rParenPos = this.findRParen();
-    if (rParenPos == -1) {
+    if (this.findRParen() < 0) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR, "right paren", this.peekToString());
     }
@@ -426,74 +450,14 @@ public class Parser {
           "variables, constants or indent",
           this.peekToString());
     }
-
-    // DECLARATIONS
-
-    List<Token> varNamesVariables;
-    int lineNum;
-    ArrayDeclaration arrayDec;
-    VariableRange varRange = null;
-    int from, to;
-    boolean isArray = false;
-    float realFrom, realTo;
-    realFrom = realTo = -1;
-    VariableNode.VariableType varType;
-    List<VariableNode> variableVars = new ArrayList<VariableNode>();
+    List<VariableNode> variableVars = new ArrayList<>();
     List<VariableNode> constVars = new ArrayList<VariableNode>();
-    List<ConstantDeclaration> constDecs = new ArrayList<ConstantDeclaration>();
+    List<ConstantDeclaration> constDecs = new ArrayList<>();
     VariableNode constVar;
     // Declarations parsing loop
     while (peekRet != Token.TokenType.INDENT) {
-      lineNum = this.peekToken(0).getTokenLineNum();
-
-      // VARIABLES
-
       if (peekRet == Token.TokenType.VARIABLES) {
-        this.matchAndRemove(Token.TokenType.VARIABLES);
-        varNamesVariables = this.parseVarNames();
-        peekRet = this.peek(0);
-        if (!(peekRet == Token.TokenType.ARRAY || this.isTokenTypeDataType(peekRet))) {
-          throw new SyntaxErrorException(
-              SyntaxErrorException.ExcType.FUNCTION_ERROR,
-              lineNum,
-              "expected data type in variables declaration, found " + this.peekToken(0));
-        }
-        if (peekRet == Token.TokenType.ARRAY) {
-          isArray = true;
-          arrayDec = this.parseArrayDec();
-          varType = arrayDec.getType();
-          from = arrayDec.getFrom();
-          to = arrayDec.getTo();
-        } else {
-          varType = this.getVarTypeFromTokenType(peekRet);
-          this.matchAndRemove(peekRet);
-          if (this.peek(0) == Token.TokenType.FROM) {
-            if (peekRet != Token.TokenType.STRING
-                && peekRet != Token.TokenType.REAL
-                && peekRet != Token.TokenType.INTEGER) {
-              throw new Exception(
-                  "Variable range not supported for type "
-                      + peekRet
-                      + " -- line "
-                      + this.peekToken(0).getTokenLineNum());
-            }
-            varRange = this.parseVarRange(peekRet);
-            from = varRange.getFrom();
-            to = varRange.getTo();
-            realFrom = varRange.getRealFrom();
-            realTo = varRange.getRealTo();
-          } else {
-            from = to = -1;
-          }
-        }
-        for (Token vn : varNamesVariables) {
-          variableVars.add(
-              new VariableNode(
-                  vn.getValueString(), varType, true, from, to, isArray, realFrom, realTo));
-        }
-
-        // CONSTANTS
-
+        variableVars = this.parseVars();
       } else {
         // Match and remove CONSTANTS token
         this.matchAndRemove(peekRet);
@@ -514,26 +478,84 @@ public class Parser {
       this.expectsEndOfLine();
       peekRet = this.peek(0);
     }
-
-    // FUNCTION BODY
-
     return new FunctionNode(
         funcName.getValueString(), paramVars, variableVars, constVars, this.statements());
   }
 
   /**
-   * TODO: write docstring
+   * The range of an array refers to its indices. The range of a number refers to its values. The
+   * range of a string refers to its lengths.
+   * <p>
+   * -1 in intFrom and intTo and/or realFrom and realTo either means the range is not set or not
+   * applicable. For example, realFrom and realTo are not applicable for integers, strings, and
+   * arrays.
    *
-   * @param
    * @return
+   * @throws Exception
+   */
+  private List<VariableNode> parseVars() throws Exception {
+    var ret = new ArrayList<VariableNode>();
+    this.matchAndRemove(Token.TokenType.VARIABLES);
+    List<Token> varNamesVariables = this.parseVarNames();
+    Token peekTokenRet = this.peekToken(0);
+    if (peekTokenRet == null) {
+      return null;
+    }
+    Token.TokenType peekRet = peekTokenRet.getTokenType();
+    if (!(peekRet == Token.TokenType.ARRAY || this.isTokenTypeDataType(peekRet))) {
+      throw new SyntaxErrorException(
+          SyntaxErrorException.ExcType.VARIABLES_ERROR, "data type", this.peekToString());
+    }
+    boolean isArray = peekRet == Token.TokenType.ARRAY;
+    int intFrom, intTo;
+    float realFrom, realTo;
+    intFrom = intTo = -1;
+    realFrom = realTo = -1;
+    VariableNode.VariableType varType;
+    if (isArray) {
+      ArrayDeclaration arrayDec = this.parseArrayDec();
+      varType = arrayDec.getType();
+      intFrom = arrayDec.getFrom();
+      intTo = arrayDec.getTo();
+    } else {
+      varType = this.getVarTypeFromTokenType(peekRet);
+      this.removePlain();
+      if (this.peek(0) == Token.TokenType.FROM) {
+        if (peekRet != Token.TokenType.STRING
+            && peekRet != Token.TokenType.REAL
+            && peekRet != Token.TokenType.INTEGER) {
+          throw new SemanticErrorException(
+              "Variable range not supported for type "
+                  + peekRet
+                  + " -- line "
+                  + peekTokenRet.getTokenLineNum());
+        }
+        VariableRange varRange = this.parseVarRange(peekRet);
+        intFrom = varRange.getFrom();
+        intTo = varRange.getTo();
+        realFrom = varRange.getRealFrom();
+        realTo = varRange.getRealTo();
+      }
+    }
+    for (Token vn : varNamesVariables) {
+      ret.add(
+          new VariableNode(
+              vn.getValueString(), varType, true, intFrom, intTo, isArray, realFrom, realTo,
+              peekTokenRet.getTokenLineNum()));
+    }
+    return ret;
+  }
+
+  /**
+   *
+   * @return
+   * @throws SyntaxErrorException
    */
   private ConstantDeclaration parseConstant() throws SyntaxErrorException {
     Token name = this.matchAndRemove(Token.TokenType.IDENTIFIER);
     if (name == null) {
       throw new SyntaxErrorException(
-          SyntaxErrorException.ExcType.FUNCTION_ERROR,
-          this.peekToken(0).getTokenLineNum(),
-          "found constants but no name");
+          SyntaxErrorException.ExcType.CONSTANTS_ERROR, "constant name", this.peekToString());
     }
     if (this.matchAndRemove(Token.TokenType.EQUALS) == null) {
       throw new SyntaxErrorException(
@@ -799,8 +821,6 @@ public class Parser {
   /**
    * Processes array declarations in parameters (no from or to)
    *
-   * <p>TODO: finish docstring
-   *
    * @param
    * @return
    */
@@ -835,8 +855,6 @@ public class Parser {
    *
    * <p>colon type (semicolon or right paren)
    *
-   * <p>TODO: finish docstring
-   *
    * @param
    * @return
    */
@@ -848,7 +866,7 @@ public class Parser {
     List<Token> varNames;
     Token.TokenType varType;
     while (peekRet != Token.TokenType.RPAREN) {
-      changeable = this.matchAndRemove(Token.TokenType.VAR) == null ? false : true;
+      changeable = this.matchAndRemove(Token.TokenType.VAR) != null;
       varNames = this.parseVarNames();
       peekRet = this.peek(0);
       if (!(peekRet == Token.TokenType.ARRAY || this.isTokenTypeDataType(peekRet))) {
@@ -892,7 +910,7 @@ public class Parser {
    */
   private BooleanCompareNode.CompareType getCompTypeFromTokenType(Token.TokenType tt) {
     for (BooleanCompareNode.CompareType ct : BooleanCompareNode.CompareType.values()) {
-      if (ct.toString() == tt.toString()) {
+      if (Objects.equals(ct.toString(), tt.toString())) {
         return ct;
       }
     }
@@ -922,17 +940,17 @@ public class Parser {
    * @return a Node that could be BooleanCompareNode, MathOpNode, or individual element node
    */
   private Node boolCompare() throws Exception {
-    Node expression1;
-    Token compOp;
-    BooleanCompareNode.CompareType compareType;
-
-    expression1 = this.expression();
-    Token.TokenType peekRet = this.peek(0);
+    Node expression1 = this.expression();
+    Token peekTokenRet = this.peekToken(0);
+    if (peekTokenRet == null) {
+      return expression1;
+    }
+    Token.TokenType peekRet = peekTokenRet.getTokenType();
     if (!this.isCompOp(peekRet)) {
       return expression1;
     }
-    compOp = this.matchAndRemove(peekRet);
-    compareType = this.getCompTypeFromTokenType(compOp.getTokenType());
+    this.removePlain();
+    BooleanCompareNode.CompareType compareType = this.getCompTypeFromTokenType(peekRet);
     return new BooleanCompareNode(compareType, expression1, this.expression());
   }
 

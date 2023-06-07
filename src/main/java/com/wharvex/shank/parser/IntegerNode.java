@@ -4,8 +4,9 @@ public class IntegerNode extends Node {
 
   private int val;
 
-  public IntegerNode(int val) {
+  public IntegerNode(int val, int lineNum) {
     this.val = val;
+    this.lineNum = lineNum;
   }
 
   public int getVal() {

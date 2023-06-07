@@ -41,10 +41,11 @@ public class MathOpNode extends Node {
 
   private MathOpType mathOpType;
 
-  public MathOpNode(MathOpType mathOpType, Node leftNode, Node rightNode) {
+  public MathOpNode(MathOpType mathOpType, Node leftNode, Node rightNode, int lineNum) {
     this.mathOpType = mathOpType;
     this.leftSide = new LeftSide(leftNode);
     this.rightSide = new RightSide(rightNode);
+    this.lineNum = lineNum;
   }
 
   public Node getLeftSide() {
