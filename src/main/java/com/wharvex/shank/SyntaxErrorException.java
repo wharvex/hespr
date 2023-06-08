@@ -24,7 +24,8 @@ public class SyntaxErrorException extends Exception {
     FOR_ERROR("parseFor() expected "),
     REPEAT_ERROR("parseRepeat() expected "),
     IF_ERROR("parseIf() expected "),
-    FUNC_CALL_ERROR("functionCall() expected ");
+    FUNC_CALL_ERROR("functionCall() expected "),
+    EOF_ERROR("Unexpected end of file");
     String baseMessage;
 
     ExcType(String baseMessage) {

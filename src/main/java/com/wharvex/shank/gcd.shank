@@ -23,6 +23,7 @@ define gcdRec(a, b : integer; var divisor : integer)
 
 define start()
 variables divisorArg : integer
+constants class = "ICSI311", goodGrade = 95
     { Expected output: 1 }
     gcdRec 57, 25, var divisorArg
     Write "GCD of 57 and 25. Expected: 1. Calculated: "+divisorArg
@@ -39,3 +40,5 @@ variables divisorArg : integer
     gcdIter 1035, 747, var divisorArg
     Write "GCD of 1035 and 747. Expected: 9. Calculated:",divisorArg
     Write ""
+
+    Write class, goodGrade

@@ -22,7 +22,8 @@ public class VariableNode extends Node {
    * Normal constructor
    */
   public VariableNode(
-      String name, VariableType type, boolean changeable, int from, int to, boolean isArray) {
+      String name, VariableType type, boolean changeable, int from, int to, boolean isArray,
+      int lineNum) {
     this.name = name;
     this.type = type;
     this.changeable = changeable;
@@ -31,6 +32,20 @@ public class VariableNode extends Node {
     this.isArray = isArray;
     this.realFrom = -1;
     this.realTo = -1;
+    this.lineNum = lineNum;
+  }
+  public VariableNode(
+      String name, VariableType type, boolean changeable, int from, int to, boolean isArray
+      ) {
+    this.name = name;
+    this.type = type;
+    this.changeable = changeable;
+    this.from = from;
+    this.to = to;
+    this.isArray = isArray;
+    this.realFrom = -1;
+    this.realTo = -1;
+    this.lineNum = -1;
   }
 
   public VariableNode(

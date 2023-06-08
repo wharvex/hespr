@@ -23,15 +23,17 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
-  private List<Token> tokens;
+  private final List<Token> tokens;
+  private final PeekCheck peekCheck;
 
   /**
    * Constructor
    *
    * @param tokens the tokens list
    */
-  public Parser(List<Token> tokens) {
+  public Parser(List<Token> tokens) throws SyntaxErrorException {
     this.tokens = tokens;
+    this.peekCheck = new PeekCheck(this.peekToken(0), true);
   }
 
   /**
@@ -41,6 +43,18 @@ public class Parser {
    */
   public boolean tokensNotEmpty() {
     return this.tokens.size() != 0;
+  }
+
+  private PeekCheck getPeekCheck() {
+    return this.peekCheck;
+  }
+
+  private void updatePeekCheck() throws SyntaxErrorException {
+    this.peekCheck.updatePeek(this.peekToken(0), false);
+  }
+
+  private void updatePeekCheckNullSafe() throws SyntaxErrorException {
+    this.peekCheck.updatePeek(this.peekToken(0), true);
   }
 
   /**
@@ -73,13 +87,13 @@ public class Parser {
    * @param tokenType the TokenType to match in tokens and remove if present
    * @return the Token if removed, null otherwise
    */
-  private Token matchAndRemove(Token.TokenType tokenType) {
+  private Token matchAndRemoveToken(Token.TokenType tokenType) {
     return this.tokensNotEmpty() && this.tokens.get(0).getTokenType() == tokenType
         ? this.tokens.remove(0)
         : null;
   }
 
-  private void removePlain() {
+  private void removeToken() {
     this.tokens.remove(0);
   }
 
@@ -88,14 +102,14 @@ public class Parser {
    * Removes the token if it is and continues removing ENDOFLINE tokens if they are next in tokens.
    */
   private void expectsEndOfLine() throws Exception {
-    Token endOfLine = this.matchAndRemove(Token.TokenType.ENDOFLINE);
+    Token endOfLine = this.matchAndRemoveToken(Token.TokenType.ENDOFLINE);
     if (endOfLine == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.EOL_ERROR, "end of line", this.peekToString());
     }
     Token.TokenType peekRet = this.peek(0);
     while (peekRet == Token.TokenType.ENDOFLINE) {
-      this.matchAndRemove(peekRet);
+      this.matchAndRemoveToken(peekRet);
       peekRet = this.peek(0);
     }
   }
@@ -214,7 +228,7 @@ public class Parser {
         if (!this.isTokenTypeTermOp(peekRet1)) {
           return term1;
         }
-        this.removePlain();
+        this.removeToken();
         return new MathOpNode(
             this.getMathOpTypeFromTokenType(peekRet1),
             term1,
@@ -222,7 +236,7 @@ public class Parser {
       }
     }
     // Eat the expOp
-    this.matchAndRemove(peekRet1);
+    this.matchAndRemoveToken(peekRet1);
 
     // Peek and return
 
@@ -267,15 +281,15 @@ public class Parser {
     Token.TokenType peekRet = peekTokenRet.getTokenType();
     switch (peekRet) {
       case TIMES -> {
-        this.removePlain();
+        this.removeToken();
         mathOpType = MathOpNode.MathOpType.MULTIPLY;
       }
       case MOD -> {
-        this.removePlain();
+        this.removeToken();
         mathOpType = MathOpNode.MathOpType.MOD;
       }
       case DIVIDE -> {
-        this.removePlain();
+        this.removeToken();
         mathOpType = MathOpNode.MathOpType.DIVIDE;
       }
       default -> {
@@ -314,7 +328,7 @@ public class Parser {
    * @return the FACTOR
    */
   private Node factor() throws Exception {
-    String minusOrEmpty = this.matchAndRemove(Token.TokenType.MINUS) != null ? "-" : "";
+    String minusOrEmpty = this.matchAndRemoveToken(Token.TokenType.MINUS) != null ? "-" : "";
     Token peekTokenRet = this.peekToken(0);
     if (peekTokenRet == null) {
       return null;
@@ -324,39 +338,39 @@ public class Parser {
     String valStr = peekTokenRet.getValueString();
     switch (peekRet) {
       case NUMBER -> {
-        this.removePlain();
+        this.removeToken();
         return new IntegerNode(Integer.parseInt(minusOrEmpty + valStr), lineNum);
       }
       case NUMBER_DECIMAL -> {
-        this.removePlain();
+        this.removeToken();
         return new RealNode(Float.parseFloat(minusOrEmpty + valStr), lineNum);
       }
       case IDENTIFIER -> {
         return this.parseVarRef();
       }
       case LPAREN -> {
-        this.removePlain();
+        this.removeToken();
         Node expRet = this.expression();
         if (expRet == null) {
           throw new SyntaxErrorException(
               SyntaxErrorException.ExcType.FACTOR_ERROR, "expression", this.peekToString());
         }
-        if (this.matchAndRemove(Token.TokenType.RPAREN) == null) {
+        if (this.matchAndRemoveToken(Token.TokenType.RPAREN) == null) {
           throw new SyntaxErrorException(
               SyntaxErrorException.ExcType.FACTOR_ERROR, "right paren", this.peekToString());
         }
         return expRet;
       }
       case TRUE -> {
-        this.removePlain();
+        this.removeToken();
         return new BooleanNode(true, lineNum);
       }
       case FALSE -> {
-        this.removePlain();
+        this.removeToken();
         return new BooleanNode(false, lineNum);
       }
       case STRINGLITERAL -> {
-        this.removePlain();
+        this.removeToken();
         return new StringNode(valStr, lineNum);
       }
       default -> {
@@ -413,25 +427,23 @@ public class Parser {
   }
 
   /**
-   * function() processes a function. It expects a define token. Then an identifier (the name). Then
+   * parseFunc() processes a function. It expects a define token. Then an identifier (the name). Then
    * a left paren. Then a list of 0 or more variable declarations. Then a right paren. Then an
    * endOfLine. Then constants and variables (arbitrary number). Then an indent. Then statements.
-   * Then a dedent. It returns a FunctionNode or null. Returning null
-   *
-   * <p>TODO: break this up into smaller functions
+   * Then a dedent. It returns a FunctionNode or null. Returning null should trigger parse()
    *
    * @return FunctionNode or null if no define TOKEN is found
    */
   private FunctionNode parseFunc() throws Exception {
-    if (this.matchAndRemove(Token.TokenType.DEFINE) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.DEFINE) == null) {
       return null;
     }
-    Token funcName = this.matchAndRemove(Token.TokenType.IDENTIFIER);
+    Token funcName = this.matchAndRemoveToken(Token.TokenType.IDENTIFIER);
     if (funcName == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR, "function name", this.peekToString());
     }
-    if (this.matchAndRemove(Token.TokenType.LPAREN) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.LPAREN) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR, "left paren", this.peekToString());
     }
@@ -441,42 +453,23 @@ public class Parser {
     }
     List<VariableNode> paramVars = this.parameterDeclarations();
     this.expectsEndOfLine();
-    Token.TokenType peekRet = this.peek(0);
-    if (!(peekRet == Token.TokenType.VARIABLES
-        || peekRet == Token.TokenType.CONSTANTS
-        || peekRet == Token.TokenType.INDENT)) {
-      throw new SyntaxErrorException(
-          SyntaxErrorException.ExcType.FUNCTION_ERROR,
-          "variables, constants or indent",
-          this.peekToString());
-    }
+
+    // LOCAL DECLARATIONS
+
+    this.updatePeekCheckNullSafe();
+    this.getPeekCheck().expectsDeclarationsOrIndent();
     List<VariableNode> variableVars = new ArrayList<>();
-    List<VariableNode> constVars = new ArrayList<VariableNode>();
-    List<ConstantDeclaration> constDecs = new ArrayList<>();
+    List<VariableNode> constVars = new ArrayList<>();
     VariableNode constVar;
-    // Declarations parsing loop
-    while (peekRet != Token.TokenType.INDENT) {
-      if (peekRet == Token.TokenType.VARIABLES) {
+    // Continue checking for declaration lines until INDENT is found
+    while (!this.getPeekCheck().isIndent()) {
+      if (this.getPeekCheck().getTokenType() == Token.TokenType.VARIABLES) {
         variableVars = this.parseVars();
       } else {
-        // Match and remove CONSTANTS token
-        this.matchAndRemove(peekRet);
-        do {
-          constDecs.add(this.parseConstant());
-          peekRet = this.peek(0);
-          if (peekRet == Token.TokenType.COMMA) {
-            this.matchAndRemove(peekRet);
-            peekRet = this.peek(0);
-          }
-        } while (peekRet != Token.TokenType.ENDOFLINE);
-        for (ConstantDeclaration cd : constDecs) {
-          constVar = new VariableNode(cd.getName(), cd.getType(), false, -1, -1, false);
-          constVar.setVal(cd.getVal());
-          constVars.add(constVar);
-        }
+        constVars = this.parseConstants();
       }
       this.expectsEndOfLine();
-      peekRet = this.peek(0);
+      this.updatePeekCheckNullSafe();
     }
     return new FunctionNode(
         funcName.getValueString(), paramVars, variableVars, constVars, this.statements());
@@ -495,7 +488,8 @@ public class Parser {
    */
   private List<VariableNode> parseVars() throws Exception {
     var ret = new ArrayList<VariableNode>();
-    this.matchAndRemove(Token.TokenType.VARIABLES);
+    // Remove VARIABLES token
+    this.removeToken();
     List<Token> varNamesVariables = this.parseVarNames();
     Token peekTokenRet = this.peekToken(0);
     if (peekTokenRet == null) {
@@ -519,7 +513,7 @@ public class Parser {
       intTo = arrayDec.getTo();
     } else {
       varType = this.getVarTypeFromTokenType(peekRet);
-      this.removePlain();
+      this.removeToken();
       if (this.peek(0) == Token.TokenType.FROM) {
         if (peekRet != Token.TokenType.STRING
             && peekRet != Token.TokenType.REAL
@@ -546,18 +540,40 @@ public class Parser {
     return ret;
   }
 
+  private List<VariableNode> parseConstants() throws SyntaxErrorException {
+    var constDecs = new ArrayList<ConstantDeclaration>();
+    VariableNode constVar;
+    var constVars = new ArrayList<VariableNode>();
+    // Remove CONSTANTS token
+    this.removeToken();
+    do {
+      constDecs.add(this.parseConstant());
+      this.updatePeekCheckNullSafe();
+      if (this.getPeekCheck().isComma()) {
+        this.removeToken();
+        this.updatePeekCheckNullSafe();
+      }
+    } while (!this.getPeekCheck().isEOL());
+    for (ConstantDeclaration cd : constDecs) {
+      constVar = new VariableNode(cd.getName(), cd.getType(), false, -1, -1, false,
+          this.getPeekCheck().getLineNum());
+      constVar.setVal(cd.getVal());
+      constVars.add(constVar);
+    }
+    return constVars;
+  }
+
   /**
-   *
    * @return
    * @throws SyntaxErrorException
    */
   private ConstantDeclaration parseConstant() throws SyntaxErrorException {
-    Token name = this.matchAndRemove(Token.TokenType.IDENTIFIER);
+    Token name = this.matchAndRemoveToken(Token.TokenType.IDENTIFIER);
     if (name == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.CONSTANTS_ERROR, "constant name", this.peekToString());
     }
-    if (this.matchAndRemove(Token.TokenType.EQUALS) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.EQUALS) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR,
           this.peekToken(0).getTokenLineNum(),
@@ -567,48 +583,33 @@ public class Parser {
     VariableNode.VariableType varType;
     String minusIfPresent = "";
     switch (peekRet) {
-      case NUMBER:
-        varType = VariableNode.VariableType.INTEGER;
-        break;
-      case NUMBER_DECIMAL:
-        varType = VariableNode.VariableType.REAL;
-        break;
-      case MINUS:
-        if (this.peek(1) == Token.TokenType.NUMBER) {
+      case NUMBER -> varType = VariableNode.VariableType.INTEGER;
+      case NUMBER_DECIMAL -> varType = VariableNode.VariableType.REAL;
+      case MINUS -> {
+        if (this.peek(1) == TokenType.NUMBER) {
           varType = VariableNode.VariableType.INTEGER;
-        } else if (this.peek(1) == Token.TokenType.NUMBER_DECIMAL) {
+        } else if (this.peek(1) == TokenType.NUMBER_DECIMAL) {
           varType = VariableNode.VariableType.REAL;
         } else {
           throw new SyntaxErrorException(
-              SyntaxErrorException.ExcType.FUNCTION_ERROR,
+              ExcType.FUNCTION_ERROR,
               this.peekToken(0).getTokenLineNum(),
               "found invalid constants declaration");
         }
         minusIfPresent = "-";
-        break;
-      case STRINGLITERAL:
-        varType = VariableNode.VariableType.STRING;
-        break;
-      case CHARACTERLITERAL:
-        varType = VariableNode.VariableType.CHARACTER;
-        break;
-      case TRUE:
-        varType = VariableNode.VariableType.BOOLEAN;
-        break;
-      case FALSE:
-        varType = VariableNode.VariableType.BOOLEAN;
-        break;
-
-      default:
-        throw new SyntaxErrorException(
-            SyntaxErrorException.ExcType.FUNCTION_ERROR,
-            this.peekToken(0).getTokenLineNum(),
-            "found invalid constants declaration");
+      }
+      case STRINGLITERAL -> varType = VariableNode.VariableType.STRING;
+      case CHARACTERLITERAL -> varType = VariableNode.VariableType.CHARACTER;
+      case TRUE, FALSE -> varType = VariableNode.VariableType.BOOLEAN;
+      default -> throw new SyntaxErrorException(
+          ExcType.FUNCTION_ERROR,
+          this.peekToken(0).getTokenLineNum(),
+          "found invalid constants declaration");
     }
     return (new ConstantDeclaration(
         name.getValueString(),
         varType,
-        minusIfPresent + this.matchAndRemove(peekRet).getValueString()));
+        minusIfPresent + this.matchAndRemoveToken(peekRet).getValueString()));
   }
 
   /**
@@ -658,7 +659,7 @@ public class Parser {
    * @return list of varName tokens
    */
   private List<Token> parseVarNames() throws SyntaxErrorException {
-    Token varNameToken = this.matchAndRemove(Token.TokenType.IDENTIFIER);
+    Token varNameToken = this.matchAndRemoveToken(Token.TokenType.IDENTIFIER);
     if (varNameToken == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.PARAMETERS_ERROR,
@@ -676,8 +677,8 @@ public class Parser {
             "found variable name identifier then not comma or colon");
       }
       // This must be comma after the previous while and if tests
-      this.matchAndRemove(Token.TokenType.COMMA);
-      varNameToken = this.matchAndRemove(Token.TokenType.IDENTIFIER);
+      this.matchAndRemoveToken(Token.TokenType.COMMA);
+      varNameToken = this.matchAndRemoveToken(Token.TokenType.IDENTIFIER);
       if (varNameToken == null) {
         throw new SyntaxErrorException(
             SyntaxErrorException.ExcType.PARAMETERS_ERROR,
@@ -687,7 +688,7 @@ public class Parser {
       varNameTokens.add(varNameToken);
       commaOrColon = this.peek(0);
     }
-    this.matchAndRemove(Token.TokenType.COLON);
+    this.matchAndRemoveToken(Token.TokenType.COLON);
     return varNameTokens;
   }
 
@@ -697,15 +698,15 @@ public class Parser {
    * @return an ArrayDeclaration instance representing the declaration
    */
   private ArrayDeclaration parseArrayDec() throws SyntaxErrorException {
-    this.matchAndRemove(Token.TokenType.ARRAY);
-    if (this.matchAndRemove(Token.TokenType.FROM) == null) {
+    this.matchAndRemoveToken(Token.TokenType.ARRAY);
+    if (this.matchAndRemoveToken(Token.TokenType.FROM) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.VARIABLES_ERROR,
           this.peekToken(0).getTokenLineNum(),
           "found incomplete array type declaration");
     }
     int from, to;
-    Token fromNumToken = this.matchAndRemove(Token.TokenType.NUMBER);
+    Token fromNumToken = this.matchAndRemoveToken(Token.TokenType.NUMBER);
     if (fromNumToken == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.VARIABLES_ERROR,
@@ -713,13 +714,13 @@ public class Parser {
           "found incomplete array type declaration");
     }
     from = Integer.parseInt(fromNumToken.getValueString());
-    if (this.matchAndRemove(Token.TokenType.TO) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.TO) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.VARIABLES_ERROR,
           this.peekToken(0).getTokenLineNum(),
           "found incomplete array type declaration");
     }
-    Token toNumToken = this.matchAndRemove(Token.TokenType.NUMBER);
+    Token toNumToken = this.matchAndRemoveToken(Token.TokenType.NUMBER);
     if (toNumToken == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.VARIABLES_ERROR,
@@ -727,7 +728,7 @@ public class Parser {
           "found incomplete array type declaration");
     }
     to = Integer.parseInt(toNumToken.getValueString());
-    if (this.matchAndRemove(Token.TokenType.OF) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.OF) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.VARIABLES_ERROR,
           this.peekToken(0).getTokenLineNum(),
@@ -740,7 +741,7 @@ public class Parser {
           this.peekToken(0).getTokenLineNum(),
           "found incomplete array type declaration");
     }
-    this.matchAndRemove(peekRet);
+    this.matchAndRemoveToken(peekRet);
     return new ArrayDeclaration(from, to, this.getVarTypeFromTokenType(peekRet));
   }
 
@@ -752,7 +753,7 @@ public class Parser {
    * @return a VariableRange instance with the range
    */
   private VariableRange parseVarRange(Token.TokenType varType) throws SyntaxErrorException {
-    this.matchAndRemove(Token.TokenType.FROM);
+    this.matchAndRemoveToken(Token.TokenType.FROM);
     int from, to;
     from = to = -1;
     float realFrom, realTo;
@@ -783,8 +784,8 @@ public class Parser {
               SyntaxErrorException.ExcType.FUNCTION_ERROR, "int from", this.peekToString());
         }
     }
-    this.matchAndRemove(peekRet);
-    if (this.matchAndRemove(Token.TokenType.TO) == null) {
+    this.matchAndRemoveToken(peekRet);
+    if (this.matchAndRemoveToken(Token.TokenType.TO) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR, "to", this.peekToString());
     }
@@ -814,7 +815,7 @@ public class Parser {
               SyntaxErrorException.ExcType.FUNCTION_ERROR, "int to", this.peekToString());
         }
     }
-    this.matchAndRemove(peekRet);
+    this.matchAndRemoveToken(peekRet);
     return new VariableRange(from, to, realFrom, realTo);
   }
 
@@ -825,8 +826,8 @@ public class Parser {
    * @return
    */
   private Token.TokenType parseArrayDecParams() throws SyntaxErrorException {
-    this.matchAndRemove(Token.TokenType.ARRAY);
-    if (this.matchAndRemove(Token.TokenType.OF) == null) {
+    this.matchAndRemoveToken(Token.TokenType.ARRAY);
+    if (this.matchAndRemoveToken(Token.TokenType.OF) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.PARAMETERS_ERROR,
           this.peekToken(0).getTokenLineNum(),
@@ -845,7 +846,7 @@ public class Parser {
               + " -- "
               + this.peek(0));
     }
-    return this.matchAndRemove(peekRet).getTokenType();
+    return this.matchAndRemoveToken(peekRet).getTokenType();
   }
 
   /**
@@ -866,7 +867,7 @@ public class Parser {
     List<Token> varNames;
     Token.TokenType varType;
     while (peekRet != Token.TokenType.RPAREN) {
-      changeable = this.matchAndRemove(Token.TokenType.VAR) != null;
+      changeable = this.matchAndRemoveToken(Token.TokenType.VAR) != null;
       varNames = this.parseVarNames();
       peekRet = this.peek(0);
       if (!(peekRet == Token.TokenType.ARRAY || this.isTokenTypeDataType(peekRet))) {
@@ -881,8 +882,8 @@ public class Parser {
       varType =
           peekRet == Token.TokenType.ARRAY
               ? this.parseArrayDecParams()
-              : this.matchAndRemove(peekRet).getTokenType();
-      this.matchAndRemove(Token.TokenType.SEMICOLON);
+              : this.matchAndRemoveToken(peekRet).getTokenType();
+      this.matchAndRemoveToken(Token.TokenType.SEMICOLON);
       if (peekRet == Token.TokenType.ARRAY) {
         isArray = true;
       }
@@ -895,10 +896,10 @@ public class Parser {
                 changeable,
                 -1,
                 -1,
-                isArray));
+                isArray, this.peekToken(0).getTokenLineNum()));
       }
     }
-    this.matchAndRemove(Token.TokenType.RPAREN);
+    this.matchAndRemoveToken(Token.TokenType.RPAREN);
     return ret;
   }
 
@@ -949,7 +950,7 @@ public class Parser {
     if (!this.isCompOp(peekRet)) {
       return expression1;
     }
-    this.removePlain();
+    this.removeToken();
     BooleanCompareNode.CompareType compareType = this.getCompTypeFromTokenType(peekRet);
     return new BooleanCompareNode(compareType, expression1, this.expression());
   }
@@ -962,13 +963,13 @@ public class Parser {
    * @throws Exception
    */
   private VariableReferenceNode parseVarRef() throws Exception {
-    Token nameToken = this.matchAndRemove(Token.TokenType.IDENTIFIER);
+    Token nameToken = this.matchAndRemoveToken(Token.TokenType.IDENTIFIER);
     String name = nameToken.getValueString();
     Token.TokenType peekRet = this.peek(0);
     if (peekRet == Token.TokenType.LSQUARE) {
-      this.matchAndRemove(Token.TokenType.LSQUARE);
+      this.matchAndRemoveToken(Token.TokenType.LSQUARE);
       VariableReferenceNode ret = new VariableReferenceNode(name, this.expression());
-      if (this.matchAndRemove(Token.TokenType.RSQUARE) == null) {
+      if (this.matchAndRemoveToken(Token.TokenType.RSQUARE) == null) {
         throw new SyntaxErrorException(
             SyntaxErrorException.ExcType.IDX_EXP_ERROR,
             this.peekToken(0).getTokenLineNum(),
@@ -993,7 +994,7 @@ public class Parser {
           "expected identifier, found " + this.peekToken(0));
     }
     VariableReferenceNode leftSide = this.parseVarRef();
-    if (this.matchAndRemove(Token.TokenType.ASSIGN) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.ASSIGN) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.ASSIGNMENT_ERROR, "assign token", this.peekToString());
     }
@@ -1018,7 +1019,7 @@ public class Parser {
     StatementNode ret;
     switch (peekRet) {
       case DEDENT:
-        this.matchAndRemove(Token.TokenType.DEDENT);
+        this.matchAndRemoveToken(Token.TokenType.DEDENT);
         return null;
       case FOR:
         ret = this.parseFor();
@@ -1066,7 +1067,7 @@ public class Parser {
    */
   private List<StatementNode> statements() throws Exception {
     var ret = new ArrayList<StatementNode>();
-    if (this.matchAndRemove(Token.TokenType.INDENT) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.INDENT) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.STATEMENTS_ERROR, "indent", this.peekToString());
     }
@@ -1085,7 +1086,7 @@ public class Parser {
    * @return
    */
   private ForNode parseFor() throws Exception {
-    this.matchAndRemove(Token.TokenType.FOR);
+    this.matchAndRemoveToken(Token.TokenType.FOR);
     if (this.peek(0) != Token.TokenType.IDENTIFIER) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FOR_ERROR, "variable reference", this.peekToString());
@@ -1093,12 +1094,12 @@ public class Parser {
     // TODO: Should this be a variable reference, since we wouldn't want it to have an
     // array subscript? Job for semantic analysis?
     VariableReferenceNode varRef = this.parseVarRef();
-    if (this.matchAndRemove(Token.TokenType.FROM) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.FROM) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FOR_ERROR, "from", this.peekToString());
     }
     Node fromExp = this.expression();
-    if (this.matchAndRemove(Token.TokenType.TO) == null) {
+    if (this.matchAndRemoveToken(Token.TokenType.TO) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FOR_ERROR, "to", this.peekToString());
     }
@@ -1114,14 +1115,14 @@ public class Parser {
    * @return
    */
   private IfNode parseIf(Token.TokenType ifOrElsifOrElse) throws Exception {
-    this.matchAndRemove(ifOrElsifOrElse);
+    this.matchAndRemoveToken(ifOrElsifOrElse);
     Node condition;
     List<StatementNode> statements;
     Token.TokenType peekRet;
     if (ifOrElsifOrElse != Token.TokenType.ELSE) {
       condition = this.boolCompare();
       // TODO: Test here if condition is null
-      if (this.matchAndRemove(Token.TokenType.THEN) == null) {
+      if (this.matchAndRemoveToken(Token.TokenType.THEN) == null) {
         throw new SyntaxErrorException(
             SyntaxErrorException.ExcType.IF_ERROR, "then", this.peekToString());
       }
@@ -1147,7 +1148,7 @@ public class Parser {
    * @return
    */
   private WhileNode parseWhile() throws Exception {
-    this.matchAndRemove(Token.TokenType.WHILE);
+    this.matchAndRemoveToken(Token.TokenType.WHILE);
     Node condition = this.boolCompare();
     this.expectsEndOfLine();
     return new WhileNode(condition, this.statements());
@@ -1160,8 +1161,8 @@ public class Parser {
    * @return
    */
   private RepeatNode parseRepeat() throws Exception {
-    this.matchAndRemove(Token.TokenType.REPEAT);
-    if (this.matchAndRemove(Token.TokenType.UNTIL) == null) {
+    this.matchAndRemoveToken(Token.TokenType.REPEAT);
+    if (this.matchAndRemoveToken(Token.TokenType.UNTIL) == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.REPEAT_ERROR, "until", this.peekToString());
     }
@@ -1177,7 +1178,7 @@ public class Parser {
    * @return
    */
   public ParameterNode getTheParam() throws Exception {
-    if (this.matchAndRemove(Token.TokenType.VAR) != null) {
+    if (this.matchAndRemoveToken(Token.TokenType.VAR) != null) {
       return new ParameterNode(this.parseVarRef(), true);
     } else {
       return new ParameterNode(this.boolCompare(), false);
@@ -1191,7 +1192,7 @@ public class Parser {
    * @return
    */
   private FunctionCallNode functionCall() throws Exception {
-    Token funcName = this.matchAndRemove(Token.TokenType.IDENTIFIER);
+    Token funcName = this.matchAndRemoveToken(Token.TokenType.IDENTIFIER);
     if (funcName == null) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNC_CALL_ERROR, "function name", this.peekToString());
@@ -1203,7 +1204,7 @@ public class Parser {
     }
     var theParams = new ArrayList<ParameterNode>();
     theParams.add(theParam);
-    while (this.matchAndRemove(Token.TokenType.COMMA) != null) {
+    while (this.matchAndRemoveToken(Token.TokenType.COMMA) != null) {
       theParam = this.getTheParam();
       if (theParam.getVarParam() == null && theParam.getNonVarParam() == null) {
         throw new SyntaxErrorException(
