@@ -20,7 +20,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.RAW_INDENT), // tokenType
+      TokenType.RAW_INDENT), // tokenType
   TAB(
       CharType.TAB, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -31,7 +31,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.RAW_INDENT), // tokenType
+      TokenType.RAW_INDENT), // tokenType
   COMMENT(
       CharType.LCURLY, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -42,7 +42,7 @@ public enum StateType {
       true, // spansLines
       -1, // minCharLen
       new CharType[]{}, // errorCharTypes
-      Token.TokenType.NONE),
+      TokenType.NONE),
   STRINGLITERAL(
       CharType.DBLQUOTE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -53,7 +53,7 @@ public enum StateType {
       false, // spansLines
       2, // minCharLen
       new CharType[]{}, // errorCharTypes
-      Token.TokenType.STRINGLITERAL),
+      TokenType.STRINGLITERAL),
   CHARACTERLITERAL(
       CharType.SINGLEQUOTE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -64,7 +64,7 @@ public enum StateType {
       false, // spansLines
       2, // minCharLen
       new CharType[]{}, // errorCharTypes
-      Token.TokenType.CHARACTERLITERAL),
+      TokenType.CHARACTERLITERAL),
   STAR(
       CharType.STAR, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -75,7 +75,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.TIMES),
+      TokenType.TIMES),
   PLUS(
       CharType.PLUS, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -86,7 +86,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.PLUS),
+      TokenType.PLUS),
   COMMA(
       CharType.COMMA, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -97,7 +97,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.COMMA),
+      TokenType.COMMA),
   MINUS(
       CharType.MINUS, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -108,7 +108,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.MINUS), // tokenType
+      TokenType.MINUS), // tokenType
   SLASH(
       CharType.SLASH, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -119,7 +119,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.DIVIDE), // tokenType
+      TokenType.DIVIDE), // tokenType
   SEMICOLON(
       CharType.SEMICOLON, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -130,7 +130,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.SEMICOLON), // tokenType
+      TokenType.SEMICOLON), // tokenType
   LPAREN(
       CharType.LPAREN, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -141,7 +141,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.LPAREN), // tokenType
+      TokenType.LPAREN), // tokenType
   RPAREN(
       CharType.RPAREN, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -152,7 +152,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.RPAREN), // tokenType
+      TokenType.RPAREN), // tokenType
   LSQUARE(
       CharType.LSQUARE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -163,7 +163,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.LSQUARE), // tokenType
+      TokenType.LSQUARE), // tokenType
   RSQUARE(
       CharType.RSQUARE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -174,7 +174,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.RSQUARE), // tokenType
+      TokenType.RSQUARE), // tokenType
   EQUALS(
       CharType.EQUALS, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -185,7 +185,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.EQUALS), // tokenType
+      TokenType.EQUALS), // tokenType
   COLON(
       CharType.COLON, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -196,7 +196,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.COLON), // tokenType
+      TokenType.COLON), // tokenType
   LESSTHAN(
       CharType.LESSTHAN, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -207,7 +207,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.LESSTHAN), // tokenType
+      TokenType.LESSTHAN), // tokenType
   GREATERTHAN(
       CharType.GREATERTHAN, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -218,7 +218,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.GREATERTHAN), // tokenType
+      TokenType.GREATERTHAN), // tokenType
   GREATEREQUAL(
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -229,7 +229,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.GREATEREQUAL), // tokenType
+      TokenType.GREATEREQUAL), // tokenType
   LESSEQUAL(
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -240,7 +240,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.LESSEQUAL), // tokenType
+      TokenType.LESSEQUAL), // tokenType
   NOTEQUAL(
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -251,7 +251,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.NOTEQUAL), // tokenType
+      TokenType.NOTEQUAL), // tokenType
   ASSIGN(
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -262,7 +262,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.ASSIGN), // tokenType
+      TokenType.ASSIGN), // tokenType
   IDENTIFIER(
       CharType.LETTER, // startCharType
       new CharType[]{CharType.LETTER, CharType.DIGIT}, // continueCharTypes
@@ -273,7 +273,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.IDENTIFIER), // tokenType
+      TokenType.IDENTIFIER), // tokenType
   NUMBER(
       CharType.DIGIT, // startCharType
       new CharType[]{CharType.DIGIT}, // continueCharTypes
@@ -284,7 +284,7 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.LETTER, CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.NUMBER), // tokenType
+      TokenType.NUMBER), // tokenType
   NUMBER_DECIMAL(
       CharType.DECIMAL, // startCharType
       new CharType[]{CharType.DIGIT}, // continueCharTypes
@@ -295,7 +295,7 @@ public enum StateType {
       false, // spansLines
       2, // minCharLen
       new CharType[]{CharType.LETTER, CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      Token.TokenType.NUMBER_DECIMAL), // tokenType
+      TokenType.NUMBER_DECIMAL), // tokenType
   OUTSIDE(
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -306,7 +306,7 @@ public enum StateType {
       true, // spansLines
       -1, // minCharLen
       new CharType[]{}, // errorCharTypes
-      Token.TokenType.NONE), // tokenType
+      TokenType.NONE), // tokenType
   ERROR(
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -317,10 +317,10 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{}, // errorCharTypes
-      Token.TokenType.NONE); // tokenType
+      TokenType.NONE); // tokenType
   CharType startCharType, morphedFromCharType, morphIdentifier, stopCharType;
   CharType[] continueCharTypes, morphToCharTypes, errorCharTypes;
-  Token.TokenType tokenType; // The TokenType associated with the state
+  TokenType tokenType; // The TokenType associated with the state
   boolean spansLines;
   int minCharLen;
 
@@ -334,7 +334,7 @@ public enum StateType {
       boolean spansLines,
       int minCharLen,
       CharType[] errorCharTypes,
-      Token.TokenType tokenType) {
+      TokenType tokenType) {
     this.startCharType = startCharType;
     this.continueCharTypes = continueCharTypes;
     this.stopCharType = stopCharType;

@@ -2,7 +2,8 @@ package com.wharvex.shank.parser;
 
 import com.wharvex.shank.SyntaxErrorException;
 import com.wharvex.shank.lexer.Token;
-import com.wharvex.shank.lexer.Token.TokenType;
+import com.wharvex.shank.lexer.TokenType;
+import com.wharvex.shank.semantic.SemanticErrorException;
 
 public class PeekCheck {
 
@@ -26,18 +27,46 @@ public class PeekCheck {
     return this.peekTokenRet.getTokenLineNum();
   }
 
-  public Token.TokenType getTokenType() {
+  public TokenType getTokenType() {
     return this.peekTokenRet.getTokenType();
   }
 
   public void expectsDeclarationsOrIndent() throws SyntaxErrorException {
-    if (!(this.getTokenType() == Token.TokenType.VARIABLES
-        || this.getTokenType() == Token.TokenType.CONSTANTS
-        || this.getTokenType() == Token.TokenType.INDENT)) {
+    if (!(this.getTokenType() == TokenType.VARIABLES
+        || this.getTokenType() == TokenType.CONSTANTS
+        || this.isIndent())) {
       throw new SyntaxErrorException(
           SyntaxErrorException.ExcType.FUNCTION_ERROR,
           "variables, constants or indent",
           this.toString());
+    }
+  }
+
+  private boolean isTokenTypeDataType(TokenType t) {
+    return t == TokenType.REAL
+        || t == TokenType.INTEGER
+        || t == TokenType.BOOLEAN
+        || t == TokenType.STRING
+        || t == TokenType.CHARACTER;
+  }
+
+  public void expectsDataType() throws SyntaxErrorException {
+    if (!(this.getTokenType() == TokenType.ARRAY || this.isTokenTypeDataType(
+        this.getTokenType()))) {
+      throw new SyntaxErrorException(
+          SyntaxErrorException.ExcType.VARIABLES_ERROR, "data type", this.toString());
+    }
+  }
+
+  public void expectsRangeVarType() throws SemanticErrorException {
+    if (this.getTokenType() != TokenType.STRING
+        && this.getTokenType() != TokenType.REAL
+        && this.getTokenType() != TokenType.INTEGER) {
+      throw new SemanticErrorException(
+          "Variable range not supported for type "
+              + this.getTokenType()
+              + " -- line "
+              + this.getLineNum());
     }
   }
 
@@ -54,15 +83,20 @@ public class PeekCheck {
     this.peekTokenRet = peekTokenRet;
   }
 
+  public void updatePeek(Token peekTokenRet) {
+    this.peekTokenRet = peekTokenRet;
+  }
+
   public boolean isComma() {
-    return this.getTokenType() == Token.TokenType.COMMA;
+    return this.getTokenType() == TokenType.COMMA;
   }
 
   public boolean isEOL() {
-    return this.getTokenType() == Token.TokenType.ENDOFLINE;
+    return this.getTokenType() == TokenType.ENDOFLINE;
   }
+
   public boolean isIndent() {
-    return this.getTokenType() == Token.TokenType.INDENT;
+    return this.getTokenType() == TokenType.INDENT;
   }
 
   @Override

@@ -1,6 +1,6 @@
 package com.wharvex.shank.parser;
 
-import com.wharvex.shank.lexer.Token;
+import com.wharvex.shank.lexer.TokenType;
 import java.util.List;
 
 public class IfNode extends StatementNode {
@@ -8,9 +8,9 @@ public class IfNode extends StatementNode {
   Node condition;
   private List<StatementNode> statements;
   IfNode nextIf;
-  Token.TokenType ifOrElsifOrElse;
+  TokenType ifOrElsifOrElse;
 
-  public IfNode(Node condition, List<StatementNode> statements, Token.TokenType ifOrElsifOrElse) {
+  public IfNode(Node condition, List<StatementNode> statements, TokenType ifOrElsifOrElse) {
     this.condition = condition;
     this.statements = statements;
     this.ifOrElsifOrElse = ifOrElsifOrElse;
@@ -20,14 +20,14 @@ public class IfNode extends StatementNode {
       Node condition,
       List<StatementNode> statements,
       IfNode nextIf,
-      Token.TokenType ifOrElsifOrElse) {
+      TokenType ifOrElsifOrElse) {
     this.condition = condition;
     this.statements = statements;
     this.nextIf = nextIf;
     this.ifOrElsifOrElse = ifOrElsifOrElse;
   }
 
-  public IfNode(List<StatementNode> statements, Token.TokenType ifOrElsifOrElse) {
+  public IfNode(List<StatementNode> statements, TokenType ifOrElsifOrElse) {
     this.statements = statements;
     this.ifOrElsifOrElse = ifOrElsifOrElse;
   }
@@ -40,7 +40,7 @@ public class IfNode extends StatementNode {
     return this.condition;
   }
 
-  public Token.TokenType getIfOrElsifOrElse() {
+  public TokenType getIfOrElsifOrElse() {
     return this.ifOrElsifOrElse;
   }
 
@@ -51,7 +51,7 @@ public class IfNode extends StatementNode {
   public String toString() {
     String head = this.getIfOrElsifOrElse().toString().toLowerCase();
     String condition =
-        this.getIfOrElsifOrElse() == Token.TokenType.ELSE ? "" : this.getCondition().toString();
+        this.getIfOrElsifOrElse() == TokenType.ELSE ? "" : this.getCondition().toString();
     String ret =
         head + " " + condition + " {\n    " + Parser.listToString(this.statements) + "\n    } ";
     return ret + (this.getNextIf() == null ? "" : this.getNextIf().toString());

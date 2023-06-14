@@ -1,30 +1,46 @@
 package com.wharvex.shank.parser;
 
+import com.wharvex.shank.lexer.Token;
+import com.wharvex.shank.lexer.TokenType;
+
 public class VariableRange {
 
-  private final int from, to;
-  private final float realFrom, realTo;
+  private final Token from, to;
 
-  public VariableRange(int from, int to, float realFrom, float realTo) {
+  public VariableRange(Token from, Token to) {
     this.from = from;
     this.to = to;
-    this.realFrom = realFrom;
-    this.realTo = realTo;
   }
 
-  public int getFrom() {
-    return this.from;
+  public VariableRange() {
+    this.from = new Token("", TokenType.NONE, -1);
+    this.to = new Token("", TokenType.NONE, -1);
   }
 
-  public int getTo() {
-    return this.to;
+  public int getIntFrom() {
+    return this.from.getTokenType() == TokenType.NUMBER ? Integer.parseInt(
+        this.from.getValueString()) : -1;
+  }
+
+  public int getIntTo() {
+    return this.to.getTokenType() == TokenType.NUMBER ? Integer.parseInt(this.to.getValueString())
+        : -1;
   }
 
   public float getRealFrom() {
-    return this.realFrom;
+    return this.from.getTokenType() == TokenType.NUMBER_DECIMAL ? Float.parseFloat(
+        this.from.getValueString())
+        : -1;
   }
 
   public float getRealTo() {
-    return this.realTo;
+    return this.to.getTokenType() == TokenType.NUMBER_DECIMAL ? Float.parseFloat(
+        this.to.getValueString()) : -1;
+  }
+
+  @Override
+  public String toString() {
+    return this.getIntFrom() + " | " + this.getRealFrom() + " -> " + this.getIntTo() + " | "
+        + this.getRealTo();
   }
 }

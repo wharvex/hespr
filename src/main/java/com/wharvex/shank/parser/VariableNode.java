@@ -12,60 +12,46 @@ public class VariableNode extends Node {
   }
 
   private String name;
-  private String val;
-  private boolean changeable, isArray;
-  private int from, to;
-  private float realFrom, realTo;
-  private VariableType type;
 
-  /**
-   * Normal constructor
-   */
-  public VariableNode(
-      String name, VariableType type, boolean changeable, int from, int to, boolean isArray,
-      int lineNum) {
-    this.name = name;
-    this.type = type;
-    this.changeable = changeable;
-    this.from = from;
-    this.to = to;
-    this.isArray = isArray;
-    this.realFrom = -1;
-    this.realTo = -1;
-    this.lineNum = lineNum;
+  public String getVal() {
+    return val;
   }
-  public VariableNode(
-      String name, VariableType type, boolean changeable, int from, int to, boolean isArray
-      ) {
-    this.name = name;
-    this.type = type;
-    this.changeable = changeable;
-    this.from = from;
-    this.to = to;
-    this.isArray = isArray;
-    this.realFrom = -1;
-    this.realTo = -1;
-    this.lineNum = -1;
+
+  public void setVal(String val) {
+    this.val = val;
   }
+
+  private String val;
+  private boolean isChangeable, isArray;
+  private VariableType type;
+  private VariableRange range;
 
   public VariableNode(
       String name,
       VariableType type,
-      boolean changeable,
-      int from,
-      int to,
+      boolean isChangeable,
       boolean isArray,
-      float realFrom,
-      float realTo, int lineNum) {
+      int lineNum,
+      VariableRange range) {
     this.name = name;
     this.type = type;
-    this.changeable = changeable;
-    this.from = from;
-    this.to = to;
+    this.isChangeable = isChangeable;
     this.isArray = isArray;
-    this.realFrom = realFrom;
-    this.realTo = realTo;
     this.lineNum = lineNum;
+    this.range = range;
+  }
+  public VariableNode(
+      String name,
+      VariableType type,
+      boolean isChangeable,
+      boolean isArray,
+      int lineNum) {
+    this.name = name;
+    this.type = type;
+    this.isChangeable = isChangeable;
+    this.isArray = isArray;
+    this.lineNum = lineNum;
+    this.range = new VariableRange();
   }
 
   /**
@@ -73,27 +59,23 @@ public class VariableNode extends Node {
    */
   public VariableNode(VariableNode v) {
     this.name = v.getName();
-    this.val = v.getVal();
-    this.changeable = v.isChangeable();
-    this.from = v.getFrom();
-    this.to = v.getTo();
+    this.isChangeable = v.getIsChangeable();
+    this.isArray = v.getIsArray();
     this.type = v.getType();
-  }
-
-  public String getVal() {
-    return this.val;
-  }
-
-  public void setVal(String val) {
-    this.val = val;
+    this.lineNum = v.getLineNum();
+    this.range = v.getRange();
   }
 
   public VariableType getType() {
     return this.type;
   }
 
-  public boolean isChangeable() {
-    return this.changeable;
+  private VariableRange getRange() {
+    return this.range;
+  }
+
+  public boolean getIsChangeable() {
+    return this.isChangeable;
   }
 
   public boolean getIsArray() {
@@ -104,42 +86,29 @@ public class VariableNode extends Node {
     return this.name;
   }
 
-  public int getFrom() {
-    return this.from;
+  public int getIntFrom() {
+    return this.getRange().getIntFrom();
   }
 
-  public int getTo() {
-    return this.to;
+  public int getIntTo() {
+    return this.getRange().getIntTo();
   }
 
   public float getRealFrom() {
-    return this.realFrom;
+    return this.getRange().getRealFrom();
   }
 
   public float getRealTo() {
-    return this.realTo;
+    return this.getRange().getRealTo();
   }
 
   public String toString() {
-    String range = "";
-    boolean hasFromTo = this.getFrom() != -1 && this.getTo() != -1;
-    boolean hasRealFromTo = Float.compare(this.getRealFrom(), -1) != 0;
-    if (!this.getIsArray()) {
-      if (hasFromTo) {
-        range = ", range: " + this.getFrom() + "->" + this.getTo();
-      } else if (hasRealFromTo) {
-        range = ", range: " + this.getRealFrom() + "->" + this.getRealTo();
-      }
-    }
     return this.getName()
         + " ("
-        + (this.isChangeable() ? "variable" : "constant")
+        + (this.getIsChangeable() ? "variable" : "constant")
         + ", "
         + this.getType()
-        + range
-        + (this.getIsArray() ? ", array[" + this.getFrom() + "->" + this.getTo() + "]" : "")
-        + ", val = "
-        + this.getVal()
+        + (this.getIsArray() ? " array " : " ") + "[" + this.getRange() + "]"
         + ")";
   }
 }

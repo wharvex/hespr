@@ -14,8 +14,8 @@ public class BuiltinSquareRoot extends BuiltinBase {
     super(
         "SquareRoot",
         Arrays.asList(
-            new VariableNode("someFloat", VariableNode.VariableType.REAL, false, -1, -1, false),
-            new VariableNode("result", VariableNode.VariableType.REAL, true, -1, -1, false)));
+            new VariableNode("someFloat", VariableNode.VariableType.REAL, false, false, -1),
+            new VariableNode("result", VariableNode.VariableType.REAL, true, false, -1)));
   }
 
   @Override

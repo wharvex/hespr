@@ -182,7 +182,7 @@ public class Lexer {
     this.stateMachine.emitEndLineToken();
     if (this.stateMachine.atFileEnd()) {
       for (int j = 0; j < this.stateMachine.getIndentLevel(); j++) {
-        this.stateMachine.forceEmitToken(Token.TokenType.DEDENT, "");
+        this.stateMachine.forceEmitToken(TokenType.DEDENT, "");
       }
     }
   }

@@ -1,6 +1,6 @@
 package com.wharvex.shank.interpreter;
 
-import com.wharvex.shank.lexer.Token;
+import com.wharvex.shank.lexer.TokenType;
 import com.wharvex.shank.parser.AssignmentNode;
 import com.wharvex.shank.parser.BooleanCompareNode;
 import com.wharvex.shank.parser.BooleanNode;
@@ -53,7 +53,7 @@ public class Interpreter {
     String val = v.getVal();
     InterpreterDataType ret;
     if (v.getIsArray()) {
-      ret = new ArrayDataType(v.getType(), v.getFrom(), v.getTo());
+      ret = new ArrayDataType(v.getType(), v.getIntFrom(), v.getIntTo());
       ret.setInitialized(true);
     } else {
       switch (v.getType()) {
@@ -91,7 +91,7 @@ public class Interpreter {
       for (int i = 0; i < theParams.size(); i++) {
         InterpreterDataType theArg = args.get(i);
         VariableNode theParam = theParams.get(i);
-        theArg.setIsChangeable(theParam.isChangeable());
+        theArg.setIsChangeable(theParam.getIsChangeable());
         theArg.setInitialized(true);
         vars.put(theParam.getName(), theArg);
       }
@@ -237,7 +237,7 @@ public class Interpreter {
         } else {
           IfNode nextIf = ((IfNode) statementNode).getNextIf();
           while (nextIf != null) {
-            if (nextIf.getIfOrElsifOrElse() == Token.TokenType.ELSE) {
+            if (nextIf.getIfOrElsifOrElse() == TokenType.ELSE) {
               this.interpretBlock(nextIf.getStatements(), vars);
               break;
             } else {
@@ -281,7 +281,7 @@ public class Interpreter {
                 functionNode.getName() + " needs " + funcParams.size() + " arguments");
           }
           for (int j = 0; j < args.size(); j++) {
-            if (funcParams.get(j).isChangeable() && !args.get(j).isVar()) {
+            if (funcParams.get(j).getIsChangeable() && !args.get(j).isVar()) {
               throw new Exception(
                   "Argument " + j + " to function " + functionNode.getName() + " must be var");
             }

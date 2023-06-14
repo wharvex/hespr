@@ -15,17 +15,12 @@ public class BuiltinEnd extends BuiltinBase {
     super(
         "End",
         Arrays.asList(
-            new VariableNode("someArray", VariableNode.VariableType.ANY, false, -1, -1, true),
-            new VariableNode("end", VariableNode.VariableType.INTEGER, true, -1, -1, false)));
+            new VariableNode("someArray", VariableNode.VariableType.ANY, false, true, -1),
+            new VariableNode("end", VariableNode.VariableType.INTEGER, true, false, -1)));
   }
 
   public void execute(List<InterpreterDataType> args) {
     ((IntegerDataType) args.get(1)).setStoredVal(((ArrayDataType) args.get(0)).getTo());
-  }
-
-  @Override
-  public boolean isVariadic() {
-    return false;
   }
 
   public String toString() {

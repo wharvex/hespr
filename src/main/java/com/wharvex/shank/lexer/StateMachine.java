@@ -14,7 +14,7 @@ public class StateMachine {
   private char curChar; // The current character lex is reading
   public int curLineNum, curColNum, curLineLen, numLinesInFile, indentLevel;
   public List<Token> tokens;
-  private HashMap<String, Token.TokenType> knownWords = new HashMap<String, Token.TokenType>();
+  private HashMap<String, TokenType> knownWords = new HashMap<String, TokenType>();
 
   public StateMachine(int numLinesInFile) {
     this.numLinesInFile = numLinesInFile;
@@ -31,7 +31,7 @@ public class StateMachine {
       }
     }
     // This populates the HashMap with the lookup strings (lowercase) and token types
-    for (Token.TokenType tt : Token.TokenType.values()) {
+    for (TokenType tt : TokenType.values()) {
       if (tt.typeType == Token.TokenTypeType.KNOWNWORD) {
         this.knownWords.put(tt.toString().toLowerCase(), tt);
       }
@@ -130,7 +130,7 @@ public class StateMachine {
    * @return
    */
   public void emitEndLineToken() {
-    this.tokens.add(new Token("ENDOFLINE", Token.TokenType.ENDOFLINE, this.getCurLineNum()));
+    this.tokens.add(new Token("ENDOFLINE", TokenType.ENDOFLINE, this.getCurLineNum()));
   }
 
   /**
@@ -181,7 +181,7 @@ public class StateMachine {
    * @return
    */
   public void assessIndent() {
-    int rawIndentsQty = this.getTotalTokensOfGivenTypeThisLine(Token.TokenType.RAW_INDENT);
+    int rawIndentsQty = this.getTotalTokensOfGivenTypeThisLine(TokenType.RAW_INDENT);
     int totalTokensThisLine = this.getTotalTokensThisLine();
     // If there are no non-space/tab characters (i.e. if there are ONLY space/tab characters) on the
     // line, don’t output an INDENT or DEDENT and don’t change the stored indentation level.
@@ -189,8 +189,8 @@ public class StateMachine {
     int indentLevel = totalTokensThisLine == rawIndentsQty ? this.getIndentLevel() : rawIndentsQty;
     int indentsDiff = indentLevel - this.getIndentLevel();
     this.setIndentLevel(indentLevel);
-    Token.TokenType IndentOrDedent =
-        indentsDiff < 0 ? Token.TokenType.DEDENT : Token.TokenType.INDENT;
+    TokenType IndentOrDedent =
+        indentsDiff < 0 ? TokenType.DEDENT : TokenType.INDENT;
     indentsDiff = Math.abs(indentsDiff);
     // Want to inspect Tokens for the current line, which should be the last ones in this.tokens
     // Find the index position of the last token of the line before curLine, so we can know where
@@ -199,7 +199,7 @@ public class StateMachine {
     for (int i = 0; i < indentsDiff; i++) {
       this.tokens.add(prevLineEndTokenIdx + 1, new Token("", IndentOrDedent, this.getCurLineNum()));
     }
-    rawIndentsQty = this.getTotalTokensOfGivenTypeThisLine(Token.TokenType.RAW_INDENT);
+    rawIndentsQty = this.getTotalTokensOfGivenTypeThisLine(TokenType.RAW_INDENT);
     totalTokensThisLine = this.getTotalTokensThisLine();
     if (totalTokensThisLine == rawIndentsQty) {
       for (int i = 0; i < totalTokensThisLine; i++) {
@@ -293,14 +293,14 @@ public class StateMachine {
     }
     if (this.getCurState() == StateType.SPACE) {
       for (int i = 0; i < this.getTVSTLen() / 4; i++) {
-        this.tokens.add(new Token("", Token.TokenType.RAW_INDENT, this.getCurLineNum()));
+        this.tokens.add(new Token("", TokenType.RAW_INDENT, this.getCurLineNum()));
       }
       this.clearTokenValueStringTemp();
       return;
     }
 
     // Handle known words
-    Token.TokenType tokenTypeToUse;
+    TokenType tokenTypeToUse;
     String tokenValStrToUse;
     if (this.knownWords.containsKey(this.getTokenValueStringTemp())) {
       tokenTypeToUse = this.knownWords.get(this.getTokenValueStringTemp());
@@ -418,7 +418,7 @@ public class StateMachine {
    * @param
    * @return
    */
-  public void forceEmitToken(Token.TokenType tokenType, String valStr) {
+  public void forceEmitToken(TokenType tokenType, String valStr) {
     this.tokens.add(new Token(valStr, tokenType, this.getCurLineNum()));
   }
 
@@ -437,7 +437,7 @@ public class StateMachine {
    * @return
    */
   private boolean curStateHasTokenType() {
-    return this.getCurState().tokenType != Token.TokenType.NONE;
+    return this.getCurState().tokenType != TokenType.NONE;
   }
 
   /**
@@ -576,7 +576,7 @@ public class StateMachine {
    * @param
    * @return
    */
-  private int getTotalTokensOfGivenTypeThisLine(Token.TokenType givenType) {
+  private int getTotalTokensOfGivenTypeThisLine(TokenType givenType) {
     int ret = 0;
     for (int i = this.tokens.size() - 1; i >= 0; i--) {
       if (this.tokens.get(i).getTokenLineNum() == this.getCurLineNum()) {
@@ -597,7 +597,7 @@ public class StateMachine {
   private int getPrevLineEndIdxAndRemoveRawIndents() {
     int prevLineEndTokenIdx = -1;
     for (int i = this.tokens.size() - 1; i >= 0; i--) {
-      if (this.tokens.get(i).getTokenType() == Token.TokenType.RAW_INDENT) {
+      if (this.tokens.get(i).getTokenType() == TokenType.RAW_INDENT) {
         this.tokens.remove(i);
       }
       // Do this to avoid index out of bounds error which happens when the line is all spaces
@@ -672,7 +672,7 @@ public class StateMachine {
     // todo: find a better way to do this
     for (int i = this.tokens.size() - 1; i >= 0; i--) {
       if (this.tokens.get(i).getTokenLineNum() == this.getCurLineNum()
-          && this.tokens.get(i).getTokenType() != Token.TokenType.RAW_INDENT) {
+          && this.tokens.get(i).getTokenType() != TokenType.RAW_INDENT) {
         return true;
       } else {
         break;

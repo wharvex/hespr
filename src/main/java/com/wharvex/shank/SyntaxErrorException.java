@@ -1,6 +1,10 @@
 package com.wharvex.shank;
 
 import com.wharvex.shank.lexer.StateType;
+import com.wharvex.shank.lexer.Token;
+import com.wharvex.shank.lexer.TokenType;
+import java.util.List;
+import java.util.StringJoiner;
 
 public class SyntaxErrorException extends Exception {
 
@@ -59,6 +63,20 @@ public class SyntaxErrorException extends Exception {
   public SyntaxErrorException(ExcType exceptionType, String expected, String found) {
     super("\nERROR: " + exceptionType.baseMessage + expected + " but found " + found);
     this.expected = expected;
+  }
+
+  public SyntaxErrorException(TokenType expected, Token found) {
+    super("\nERROR: Expected " + expected + "; found " + found);
+  }
+
+  public SyntaxErrorException(List<TokenType> expected, Token found) {
+    super("\nERROR: Expected " + joinExpectedTokenTypes(expected) + "; found " + found);
+  }
+
+  private static String joinExpectedTokenTypes(List<TokenType> tts) {
+    StringJoiner ret = new StringJoiner(", ");
+    tts.forEach(tt -> ret.add(tt.toString()));
+    return ret.toString();
   }
 
   public String getExpected() {
