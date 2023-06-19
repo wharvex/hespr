@@ -3,10 +3,10 @@ package com.wharvex.shank.parser;
 import java.util.List;
 
 public class FunctionCallNode extends StatementNode {
-  private List<ParameterNode> args;
+  private List<ArgumentNode> args;
   private String funcName;
 
-  public FunctionCallNode(String funcName, List<ParameterNode> args) {
+  public FunctionCallNode(String funcName, List<ArgumentNode> args) {
     this.funcName = funcName;
     this.args = args;
   }
@@ -19,7 +19,7 @@ public class FunctionCallNode extends StatementNode {
     return this.funcName;
   }
 
-  public List<ParameterNode> getArgs() {
+  public List<ArgumentNode> getArgs() {
     return this.args;
   }
 

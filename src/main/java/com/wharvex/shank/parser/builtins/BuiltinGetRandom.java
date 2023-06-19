@@ -4,7 +4,7 @@ import com.wharvex.shank.interpreter.IntegerDataType;
 import com.wharvex.shank.interpreter.InterpreterDataType;
 import com.wharvex.shank.parser.Parser;
 import com.wharvex.shank.parser.VariableNode;
-import java.util.Arrays;
+import com.wharvex.shank.parser.VariableNode.VariableType;
 import java.util.Random;
 import java.util.List;
 
@@ -14,19 +14,14 @@ public class BuiltinGetRandom extends BuiltinBase {
   public BuiltinGetRandom() {
     super(
         "GetRandom",
-        Arrays.asList(
+        List.of(
             new VariableNode(
-                "resultInteger", VariableNode.VariableType.INTEGER, true, -1, -1, false)));
+                "resultInteger", VariableType.INTEGER, true, false, -1)));
   }
 
   public void execute(List<InterpreterDataType> args) {
     Random r = new Random();
     ((IntegerDataType) args.get(0)).setStoredVal(r.nextInt());
-  }
-
-  @Override
-  public boolean isVariadic() {
-    return false;
   }
 
   public String toString() {

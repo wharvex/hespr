@@ -16,17 +16,12 @@ public class BuiltinIntegerToReal extends BuiltinBase {
         "IntegerToReal",
         Arrays.asList(
             new VariableNode(
-                "someInteger", VariableNode.VariableType.INTEGER, false, -1, -1, false),
-            new VariableNode("someReal", VariableNode.VariableType.REAL, true, -1, -1, false)));
+                "someInteger", VariableNode.VariableType.INTEGER, false, false, -1),
+            new VariableNode("someReal", VariableNode.VariableType.REAL, true, false, -1)));
   }
 
   public void execute(List<InterpreterDataType> args) {
     ((RealDataType) args.get(1)).setStoredVal(((IntegerDataType) args.get(0)).getStoredVal());
-  }
-
-  @Override
-  public boolean isVariadic() {
-    return false;
   }
 
   public String toString() {

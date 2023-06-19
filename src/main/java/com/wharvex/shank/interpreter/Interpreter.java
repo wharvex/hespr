@@ -11,7 +11,7 @@ import com.wharvex.shank.parser.IfNode;
 import com.wharvex.shank.parser.IntegerNode;
 import com.wharvex.shank.parser.MathOpNode;
 import com.wharvex.shank.parser.Node;
-import com.wharvex.shank.parser.ParameterNode;
+import com.wharvex.shank.parser.ArgumentNode;
 import com.wharvex.shank.parser.ProgramNode;
 import com.wharvex.shank.parser.RealNode;
 import com.wharvex.shank.parser.RepeatNode;
@@ -256,17 +256,17 @@ public class Interpreter {
         FunctionNode functionNode = this.getFunction(
             ((FunctionCallNode) statementNode).getFuncName());
         var newVars = new ArrayList<InterpreterDataType>();
-        List<ParameterNode> args = ((FunctionCallNode) statementNode).getArgs();
+        List<ArgumentNode> args = ((FunctionCallNode) statementNode).getArgs();
         // If the below condition passes, then fn is a variadic Builtin (e.g. Write)
         // because only Builtins can be variadic
         if (functionNode.isVariadic()) {
           InterpreterDataType newVar;
           this.builtinExpectsArgs(args);
-          for (ParameterNode parameterNode : args) {
+          for (ArgumentNode parameterNode : args) {
             if (((BuiltinBase) functionNode).variadicNeedsVar() && !parameterNode.isVar()) {
               throw new Exception(functionNode.getName() + " must be called with var arguments");
             }
-            newVar = this.expression(parameterNode.getParam(), vars);
+            newVar = this.expression(parameterNode.getArg(), vars);
             newVar.setIsVar(parameterNode.isVar());
             newVars.add(newVar);
           }
@@ -285,7 +285,7 @@ public class Interpreter {
               throw new Exception(
                   "Argument " + j + " to function " + functionNode.getName() + " must be var");
             }
-            newVar = this.expression(args.get(j).getParam(), vars);
+            newVar = this.expression(args.get(j).getArg(), vars);
             typeCheckArg(funcParams.get(j), newVar, functionNode.getName(), j);
             newVar.setIsVar(args.get(j).isVar());
             newVars.add(newVar);
@@ -298,7 +298,7 @@ public class Interpreter {
         }
         for (int j = 0; j < newVars.size(); j++) {
           if (newVars.get(j).getIsVar() && args.get(j).isVar()) {
-            vars.put(((VariableReferenceNode) args.get(j).getParam()).getName(), newVars.get(j));
+            vars.put(((VariableReferenceNode) args.get(j).getArg()).getName(), newVars.get(j));
           }
         }
       }
@@ -357,7 +357,7 @@ public class Interpreter {
     }
   }
 
-  private void builtinExpectsArgs(List<ParameterNode> args) throws Exception {
+  private void builtinExpectsArgs(List<ArgumentNode> args) throws Exception {
     if (args == null) {
       throw new Exception("Builtin functions must be called with at least one argument");
     }

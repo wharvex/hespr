@@ -73,6 +73,10 @@ public class SyntaxErrorException extends Exception {
     super("\nERROR: Expected " + joinExpectedTokenTypes(expected) + "; found " + found);
   }
 
+  public SyntaxErrorException(Token blockType) {
+    super("\nERROR: Block type <" + blockType + "> expected statements");
+  }
+
   private static String joinExpectedTokenTypes(List<TokenType> tts) {
     StringJoiner ret = new StringJoiner(", ");
     tts.forEach(tt -> ret.add(tt.toString()));

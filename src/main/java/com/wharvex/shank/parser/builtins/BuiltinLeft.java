@@ -16,10 +16,10 @@ public class BuiltinLeft extends BuiltinBase {
     super(
         "Left",
         Arrays.asList(
-            new VariableNode("someString", VariableNode.VariableType.STRING, false, -1, -1, false),
-            new VariableNode("length", VariableNode.VariableType.INTEGER, false, -1, -1, false),
+            new VariableNode("someString", VariableNode.VariableType.STRING, false, false, -1),
+            new VariableNode("length", VariableNode.VariableType.INTEGER, false, false, -1),
             new VariableNode(
-                "resultString", VariableNode.VariableType.STRING, true, -1, -1, false)));
+                "resultString", VariableNode.VariableType.STRING, true, false, -1)));
   }
 
   public void execute(List<InterpreterDataType> args) throws SemanticErrorException {
@@ -33,13 +33,6 @@ public class BuiltinLeft extends BuiltinBase {
     StringDataType resultStringDT = (StringDataType) args.get(2);
     String resultString = someStringDT.getStoredVal().substring(0, resLen);
     resultStringDT.setStoredVal(resultString);
-    // ((StringDataType) args.get(2)).setStoredVal(((StringDataType) args.get(0)).getStoredVal()
-    //     .substring(0, ((IntegerDataType) args.get(1)).getStoredVal()));
-  }
-
-  @Override
-  public boolean isVariadic() {
-    return false;
   }
 
   public String toString() {

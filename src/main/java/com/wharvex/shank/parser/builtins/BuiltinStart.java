@@ -15,8 +15,8 @@ public class BuiltinStart extends BuiltinBase {
     super(
         "Start",
         Arrays.asList(
-            new VariableNode("someArray", VariableNode.VariableType.ANY, false, -1, -1, true),
-            new VariableNode("start", VariableNode.VariableType.INTEGER, true, -1, -1, false)));
+            new VariableNode("someArray", VariableNode.VariableType.ANY, false, false, -1),
+            new VariableNode("start", VariableNode.VariableType.INTEGER, true, false, -1)));
   }
 
   @Override

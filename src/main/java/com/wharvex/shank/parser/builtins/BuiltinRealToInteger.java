@@ -15,8 +15,8 @@ public class BuiltinRealToInteger extends BuiltinBase {
     super(
         "RealToInteger",
         Arrays.asList(
-            new VariableNode("someReal", VariableNode.VariableType.REAL, false, -1, -1, false),
-            new VariableNode("someInt", VariableNode.VariableType.INTEGER, true, -1, -1, false)));
+            new VariableNode("someReal", VariableNode.VariableType.REAL, false, false, -1),
+            new VariableNode("someInt", VariableNode.VariableType.INTEGER, true, false, -1)));
   }
 
   @Override

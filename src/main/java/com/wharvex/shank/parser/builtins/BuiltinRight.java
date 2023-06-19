@@ -16,10 +16,10 @@ public class BuiltinRight extends BuiltinBase {
     super(
         "Right",
         Arrays.asList(
-            new VariableNode("someString", VariableNode.VariableType.STRING, false, -1, -1, false),
-            new VariableNode("length", VariableNode.VariableType.INTEGER, false, -1, -1, false),
+            new VariableNode("someString", VariableNode.VariableType.STRING, false, false, -1),
+            new VariableNode("length", VariableNode.VariableType.INTEGER, false, false, -1),
             new VariableNode(
-                "resultString", VariableNode.VariableType.STRING, true, -1, -1, false)));
+                "resultString", VariableNode.VariableType.STRING, true, false, -1)));
   }
 
   @Override
