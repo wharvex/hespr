@@ -70,6 +70,17 @@ public class Parser {
       TokenType.IF,
       TokenType.ELSE,
       TokenType.ELSIF);
+  private static final List<TokenType> factorTypes = List.of(
+      TokenType.MINUS,
+      TokenType.NUMBER,
+      TokenType.NUMBER_DECIMAL,
+      TokenType.IDENTIFIER,
+      TokenType.LPAREN,
+      TokenType.TRUE,
+      TokenType.FALSE,
+      TokenType.STRINGLITERAL,
+      TokenType.CHARACTERLITERAL
+  );
 
   /**
    * Constructor
@@ -436,59 +447,52 @@ public class Parser {
     return new MathOpNode(mathOpType, factor1, this.factor(), peekTokenRet.getTokenLineNum());
   }
 
-  /**
-   * FACTOR = {-} number or lparen EXPRESSION rparen or variableReferenceNode (IDENTIFIER)
-   *
-   * @return the FACTOR
-   */
   private Node factor() throws Exception {
-    String minusOrEmpty = this.matchAndRemoveToken(TokenType.MINUS) != null ? "-" : "";
-    Token peekTokenRet = this.peekToken(0);
-    if (peekTokenRet == null) {
-      return null;
-    }
-    TokenType peekRet = peekTokenRet.getTokenType();
-    int lineNum = peekTokenRet.getTokenLineNum();
-    String valStr = peekTokenRet.getValueString();
-    switch (peekRet) {
+    Token factorToken = this.optionalMatchMultipleAndRemoveTokenSafe(factorTypes)
+        .orElseThrow(() -> new SyntaxErrorException(factorTypes, this.getCurToken()));
+    switch (factorToken.getTokenType()) {
+      case MINUS -> {
+        return this.optionalMatchMultipleAndRemoveTokenSafe(List.of(TokenType.NUMBER,
+                TokenType.NUMBER_DECIMAL))
+            .map(ft -> ft.getTokenType() == TokenType.NUMBER ? new IntegerNode(
+                Integer.parseInt("-" + ft.getValueString()), ft.getTokenLineNum())
+                : new RealNode(Float.parseFloat("-" + ft.getValueString()), ft.getTokenLineNum()))
+            .orElseThrow(() -> new SyntaxErrorException(List.of(
+                TokenType.NUMBER, TokenType.NUMBER_DECIMAL), this.getCurToken()));
+      }
       case NUMBER -> {
-        this.removeToken();
-        return new IntegerNode(Integer.parseInt(minusOrEmpty + valStr), lineNum);
+        return new IntegerNode(Integer.parseInt(factorToken.getValueString()),
+            factorToken.getTokenLineNum());
       }
       case NUMBER_DECIMAL -> {
-        this.removeToken();
-        return new RealNode(Float.parseFloat(minusOrEmpty + valStr), lineNum);
+        return new RealNode(Float.parseFloat(factorToken.getValueString()),
+            factorToken.getTokenLineNum());
       }
       case IDENTIFIER -> {
         return this.parseVarRef();
       }
       case LPAREN -> {
-        this.removeToken();
-        Node expRet = this.expression();
-        if (expRet == null) {
-          throw new SyntaxErrorException(
-              SyntaxErrorException.ExcType.FACTOR_ERROR, "expression", this.peekToString());
-        }
-        if (this.matchAndRemoveToken(TokenType.RPAREN) == null) {
-          throw new SyntaxErrorException(
-              SyntaxErrorException.ExcType.FACTOR_ERROR, "right paren", this.peekToString());
-        }
-        return expRet;
+        Node expressionNode = this.expression();
+        this.optionalMatchAndRemoveTokenSafe(TokenType.RPAREN)
+            .orElseThrow(() -> new SyntaxErrorException(
+                TokenType.RPAREN, this.getCurToken()));
+        return expressionNode;
       }
       case TRUE -> {
-        this.removeToken();
-        return new BooleanNode(true, lineNum);
+        return new BooleanNode(true, factorToken.getTokenLineNum());
       }
       case FALSE -> {
-        this.removeToken();
-        return new BooleanNode(false, lineNum);
+        return new BooleanNode(false, factorToken.getTokenLineNum());
       }
       case STRINGLITERAL -> {
-        this.removeToken();
-        return new StringNode(valStr, lineNum);
+        return new StringNode(factorToken.getValueString(), factorToken.getTokenLineNum());
+      }
+      case CHARACTERLITERAL -> {
+        return new CharacterNode(factorToken.getValueString().charAt(0),
+            factorToken.getTokenLineNum());
       }
       default -> {
-        return null;
+        throw new SyntaxErrorException(factorTypes, factorToken);
       }
     }
   }
@@ -962,25 +966,9 @@ public class Parser {
    * @return an AssignmentNode instance
    */
   private AssignmentNode parseAssignment() throws Exception {
-    TokenType peekRet = this.peekTokenType(0);
-    if (peekRet != TokenType.IDENTIFIER) {
-      throw new SyntaxErrorException(
-          SyntaxErrorException.ExcType.ASSIGNMENT_ERROR,
-          this.peekToken(0).getTokenLineNum(),
-          "expected identifier, found " + this.peekToken(0));
-    }
     VariableReferenceNode leftSide = this.parseVarRef();
-    if (this.matchAndRemoveToken(TokenType.ASSIGN) == null) {
-      throw new SyntaxErrorException(
-          SyntaxErrorException.ExcType.ASSIGNMENT_ERROR, "assign token", this.peekToString());
-    }
+    this.optionalMatchAndRemoveTokenSafe(TokenType.ASSIGN);
     Node rightSide = this.boolCompare();
-    if (rightSide == null) {
-      throw new SyntaxErrorException(
-          SyntaxErrorException.ExcType.ASSIGNMENT_ERROR,
-          this.peekToken(0).getTokenLineNum(),
-          "expected valid right side of assignment, found " + this.peekToken(0));
-    }
     return new AssignmentNode(leftSide, rightSide);
   }
 
@@ -995,7 +983,7 @@ public class Parser {
       case IF -> ret = this.parseIf();
       case IDENTIFIER -> {
         int assignFound = this.findTokenType(TokenType.ASSIGN);
-        if (assignFound > 0) {
+        if (assignFound >= 0) {
           ret = this.parseAssignment();
           this.expectsEndOfLine();
         } else {
