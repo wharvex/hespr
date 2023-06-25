@@ -61,7 +61,8 @@ public enum TokenType {
   NUMBER(TokenTypeType.GENERAL),
   NUMBER_DECIMAL(TokenTypeType.GENERAL),
   ENDOFLINE(TokenTypeType.GENERAL),
-  NONE(TokenTypeType.GENERAL);
+  NONE(TokenTypeType.GENERAL),
+  ENDOFFILE(TokenTypeType.GENERAL);
 
   final TokenTypeType typeType;
 

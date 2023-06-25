@@ -5,21 +5,35 @@ import com.wharvex.shank.lexer.TokenType;
 
 public class CurrentToken {
 
-  private Token curToken;
   private Token prevToken;
+  private Token curToken;
+  private Token nxtToken;
+  private Token nxtNxtToken;
 
-  public CurrentToken(Token curToken) {
+  public CurrentToken(Token curToken, Token nxtToken, Token nxtNxtToken) {
     this.curToken = curToken;
+    this.nxtToken = nxtToken;
+    this.nxtNxtToken = nxtNxtToken;
     this.prevToken = new Token("", TokenType.NONE, 0);
   }
 
-  public void setCurToken(Token curToken) {
+  public void setNxtNxtToken(Token nxtNxtToken) {
     this.prevToken = new Token(this.curToken);
-    this.curToken = curToken;
+    this.curToken = new Token(this.nxtToken);
+    this.nxtToken = new Token(this.nxtNxtToken);
+    this.nxtNxtToken = nxtNxtToken;
   }
 
   public Token getCurToken() {
     return this.curToken;
+  }
+
+  public Token getNxtToken() {
+    return nxtToken;
+  }
+
+  public Token getNxtNxtToken() {
+    return nxtNxtToken;
   }
 
   public TokenType getCurTokenType() {
@@ -37,6 +51,7 @@ public class CurrentToken {
   public int getLineNum() {
     return this.curToken.getTokenLineNum();
   }
+
   public int getPrevTokenLineNum() {
     return this.prevToken.getTokenLineNum();
   }

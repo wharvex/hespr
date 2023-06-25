@@ -181,6 +181,9 @@ public class Lexer {
     this.stateMachine.assessIndent();
     this.stateMachine.emitEndLineToken();
     if (this.stateMachine.atFileEnd()) {
+      // If indent level remained 0 through the whole file, then this won't emit the dedents
+      // necessary for the parser to stop parsing without error. Make sure the Parser eventually
+      // requires at least one indent
       for (int j = 0; j < this.stateMachine.getIndentLevel(); j++) {
         this.stateMachine.forceEmitToken(TokenType.DEDENT, "");
       }

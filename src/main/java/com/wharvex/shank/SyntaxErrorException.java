@@ -77,6 +77,10 @@ public class SyntaxErrorException extends Exception {
     super("\nERROR: Block type <" + blockType + "> expected statements");
   }
 
+  public SyntaxErrorException(ExcType excType, String problem) {
+    super("\nERROR: " + excType.baseMessage + problem);
+  }
+
   private static String joinExpectedTokenTypes(List<TokenType> tts) {
     StringJoiner ret = new StringJoiner(", ");
     tts.forEach(tt -> ret.add(tt.toString()));
