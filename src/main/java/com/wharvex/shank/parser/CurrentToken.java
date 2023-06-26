@@ -41,7 +41,7 @@ public class CurrentToken {
   }
 
   public Token getPrevToken() {
-    return this.prevToken;
+    return new Token(this.prevToken);
   }
 
   public TokenType getPrevTokenType() {

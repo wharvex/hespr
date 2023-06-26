@@ -64,6 +64,7 @@ public class VariableNode extends Node {
     this.type = v.getType();
     this.lineNum = v.getLineNum();
     this.range = v.getRange();
+    this.val = v.getVal();
   }
 
   public VariableType getType() {

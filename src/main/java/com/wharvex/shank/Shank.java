@@ -37,7 +37,7 @@ public class Shank {
       interpreter.startProgram();
     } catch (Exception e) {
       System.out.println(e.getMessage());
-      // e.printStackTrace();
+      e.printStackTrace();
     }
   }
 }

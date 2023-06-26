@@ -3,22 +3,22 @@ package com.wharvex.shank.parser;
 public class ArgumentNode extends Node {
 
   VariableReferenceNode varArg;
-  Node nonVarParam;
+  Node nonVarArg;
 
   public ArgumentNode(Node varOrNonVarArg, boolean isVar) {
     if (isVar) {
       this.varArg = (VariableReferenceNode) varOrNonVarArg;
     } else {
-      this.nonVarParam = varOrNonVarArg;
+      this.nonVarArg = varOrNonVarArg;
     }
   }
 
-  public VariableReferenceNode getVarArg() {
+  private VariableReferenceNode getVarArg() {
     return varArg;
   }
 
-  public Node getNonVarArg() {
-    return nonVarParam;
+  private Node getNonVarArg() {
+    return nonVarArg;
   }
 
   public Node getArg() {
