@@ -1,21 +1,22 @@
 package com.wharvex.shank.semantic;
 
-import com.wharvex.shank.parser.AssignmentNode;
-import com.wharvex.shank.parser.BooleanNode;
-import com.wharvex.shank.parser.ForNode;
-import com.wharvex.shank.parser.FunctionNode;
-import com.wharvex.shank.parser.IfNode;
-import com.wharvex.shank.parser.IntegerNode;
-import com.wharvex.shank.parser.MathOpNode;
-import com.wharvex.shank.parser.Node;
-import com.wharvex.shank.parser.ProgramNode;
-import com.wharvex.shank.parser.RealNode;
-import com.wharvex.shank.parser.RepeatNode;
-import com.wharvex.shank.parser.StatementNode;
-import com.wharvex.shank.parser.StringNode;
-import com.wharvex.shank.parser.VariableNode;
-import com.wharvex.shank.parser.VariableReferenceNode;
-import com.wharvex.shank.parser.WhileNode;
+import com.wharvex.shank.parser.nodes.AssignmentNode;
+import com.wharvex.shank.parser.nodes.BooleanNode;
+import com.wharvex.shank.parser.nodes.ForNode;
+import com.wharvex.shank.parser.nodes.FunctionNode;
+import com.wharvex.shank.parser.nodes.IfNode;
+import com.wharvex.shank.parser.nodes.IntegerNode;
+import com.wharvex.shank.parser.nodes.MathOpNode;
+import com.wharvex.shank.parser.nodes.Node;
+import com.wharvex.shank.parser.nodes.ProgramNode;
+import com.wharvex.shank.parser.nodes.RealNode;
+import com.wharvex.shank.parser.nodes.RepeatNode;
+import com.wharvex.shank.parser.nodes.StatementNode;
+import com.wharvex.shank.parser.nodes.StringNode;
+import com.wharvex.shank.parser.nodes.VariableNode;
+import com.wharvex.shank.parser.nodes.VariableReferenceNode;
+import com.wharvex.shank.parser.VariableType;
+import com.wharvex.shank.parser.nodes.WhileNode;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class SemanticAnalysis {
 
   public void checkAssignments() throws Exception {
     for (FunctionNode functionNode : this.getProgram().getFunctions().values()) {
-      var varTypes = new HashMap<String, VariableNode.VariableType>();
+      var varTypes = new HashMap<String, VariableType>();
       if (functionNode.getParams() != null) {
         for (VariableNode variableNode : functionNode.getParams()) {
           varTypes.put(variableNode.getName(), variableNode.getType());
@@ -55,7 +56,7 @@ public class SemanticAnalysis {
     }
   }
 
-  private void analyzeBlock(HashMap<String, VariableNode.VariableType> varTypes,
+  private void analyzeBlock(HashMap<String, VariableType> varTypes,
       List<StatementNode> statements, String funcName)
       throws Exception {
     if (statements == null) {
@@ -64,11 +65,11 @@ public class SemanticAnalysis {
     for (StatementNode statement : statements) {
       if (statement instanceof AssignmentNode) {
         String leftSideName = ((AssignmentNode) statement).getLeftSide().getName();
-        VariableNode.VariableType leftSideType = varTypes.get(leftSideName);
+        VariableType leftSideType = varTypes.get(leftSideName);
         Node rightSide = ((AssignmentNode) statement).getRightSide();
-        VariableNode.VariableType rightSideType = this.expression(rightSide, varTypes);
-        if (rightSideType != leftSideType && rightSideType != VariableNode.VariableType.ANY
-            && leftSideType != VariableNode.VariableType.ANY) {
+        VariableType rightSideType = this.expression(rightSide, varTypes);
+        if (rightSideType != leftSideType && rightSideType != VariableType.ANY
+            && leftSideType != VariableType.ANY) {
           throw new Exception(
               "\nSEMANTIC ANALYSIS ERROR\nWhen assigning to variable <" + leftSideName
                   + "> in function <"
@@ -93,32 +94,32 @@ public class SemanticAnalysis {
     }
   }
 
-  private VariableNode.VariableType expression(Node node,
-      HashMap<String, VariableNode.VariableType> varTypes) throws Exception {
+  private VariableType expression(Node node,
+      HashMap<String, VariableType> varTypes) throws Exception {
     if (!(node instanceof MathOpNode)) {
       if (node instanceof VariableReferenceNode) {
         return varTypes.get(((VariableReferenceNode) node).getName());
       } else if (node instanceof IntegerNode) {
-        return VariableNode.VariableType.INTEGER;
+        return VariableType.INTEGER;
       } else if (node instanceof RealNode) {
-        return VariableNode.VariableType.REAL;
+        return VariableType.REAL;
       } else if (node instanceof StringNode) {
-        return VariableNode.VariableType.STRING;
+        return VariableType.STRING;
       } else if (node instanceof BooleanNode) {
-        return VariableNode.VariableType.BOOLEAN;
+        return VariableType.BOOLEAN;
       }
     } else {
-      VariableNode.VariableType mathOpLeftSideType = this.expression(
+      VariableType mathOpLeftSideType = this.expression(
           ((MathOpNode) node).getLeftSide(), varTypes);
-      VariableNode.VariableType mathOpRightSideType = this.expression(
+      VariableType mathOpRightSideType = this.expression(
           ((MathOpNode) node).getRightSide(), varTypes);
-      if (mathOpLeftSideType == VariableNode.VariableType.STRING
-          || mathOpRightSideType == VariableNode.VariableType.STRING) {
-        return VariableNode.VariableType.STRING;
+      if (mathOpLeftSideType == VariableType.STRING
+          || mathOpRightSideType == VariableType.STRING) {
+        return VariableType.STRING;
       } else {
         return mathOpRightSideType;
       }
     }
-    return VariableNode.VariableType.ANY;
+    return VariableType.ANY;
   }
 }

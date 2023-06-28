@@ -1,13 +1,17 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
 public class VariableReferenceNode extends Node {
 
-  private String name;
+  private final String name;
   private Node arrIdxExp;
 
   public VariableReferenceNode(String name, Node arrIdxExp) {
     this.name = name;
     this.arrIdxExp = arrIdxExp;
+  }
+
+  public VariableReferenceNode(String name) {
+    this.name = name;
   }
 
   public String getName() {

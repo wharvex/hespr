@@ -1,6 +1,6 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
-public class BooleanCompareNode extends Node {
+public class MathOpNode extends Node {
 
   private class LeftSide {
 
@@ -28,28 +28,24 @@ public class BooleanCompareNode extends Node {
     }
   }
 
-  public enum CompareType {
-    LESSTHAN,
-    GREATERTHAN,
-    EQUALS,
-    GREATEREQUAL,
-    LESSEQUAL,
-    NOTEQUAL
+  public enum MathOpType {
+    ADD,
+    SUBTRACT,
+    MULTIPLY,
+    DIVIDE,
+    MOD
   }
 
   private LeftSide leftSide;
   private RightSide rightSide;
 
-  private CompareType compareType;
+  private MathOpType mathOpType;
 
-  public BooleanCompareNode(CompareType compareType, Node leftNode, Node rightNode) {
-    this.compareType = compareType;
+  public MathOpNode(MathOpType mathOpType, Node leftNode, Node rightNode, int lineNum) {
+    this.mathOpType = mathOpType;
     this.leftSide = new LeftSide(leftNode);
     this.rightSide = new RightSide(rightNode);
-  }
-
-  public CompareType getCompareType() {
-    return this.compareType;
+    this.lineNum = lineNum;
   }
 
   public Node getLeftSide() {
@@ -60,12 +56,16 @@ public class BooleanCompareNode extends Node {
     return this.rightSide.node;
   }
 
-  /**
-   * Polish notation style, like MathOpNode. leftSide is [compareType] rightSide
-   */
+  public MathOpType getMathOpType() {
+    return this.mathOpType;
+  }
+
   public String toString() {
+    // If MathOpNodes are nested, you need to recursively go through them to print them, but how do
+    // you know when to stop?
+    // System.out.println("hi");
     return "("
-        + this.compareType.toString()
+        + this.mathOpType.toString()
         + " "
         + this.leftSide.toString()
         + " "

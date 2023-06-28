@@ -2,8 +2,9 @@ package com.wharvex.shank.parser.builtins;
 
 import com.wharvex.shank.interpreter.InterpreterDataType;
 import com.wharvex.shank.interpreter.RealDataType;
-import com.wharvex.shank.parser.Parser;
-import com.wharvex.shank.parser.VariableNode;
+import com.wharvex.shank.parser.ParserHelper;
+import com.wharvex.shank.parser.nodes.VariableNode;
+import com.wharvex.shank.parser.VariableType;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,8 +15,8 @@ public class BuiltinSquareRoot extends BuiltinBase {
     super(
         "SquareRoot",
         Arrays.asList(
-            new VariableNode("someFloat", VariableNode.VariableType.REAL, false, false, -1),
-            new VariableNode("result", VariableNode.VariableType.REAL, true, false, -1)));
+            new VariableNode("someFloat", VariableType.REAL, false, false, -1),
+            new VariableNode("result", VariableType.REAL, true, false, -1)));
   }
 
   @Override
@@ -26,6 +27,6 @@ public class BuiltinSquareRoot extends BuiltinBase {
 
   @Override
   public String toString() {
-    return this.getName() + " {\n  Params:\n    " + Parser.listToString(this.getParams()) + "\n}\n";
+    return this.getName() + " {\n  Params:\n    " + ParserHelper.listToString(this.getParams()) + "\n}\n";
   }
 }

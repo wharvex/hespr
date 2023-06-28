@@ -1,4 +1,4 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
 import java.util.HashMap;
 

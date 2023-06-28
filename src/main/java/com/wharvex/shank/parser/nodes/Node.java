@@ -1,8 +1,6 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
 public abstract class Node {
-
-  Node() {}
 
   public int getLineNum() {
     return this.lineNum;

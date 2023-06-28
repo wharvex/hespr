@@ -1,5 +1,6 @@
 package com.wharvex.shank.lexer;
 
+import com.wharvex.shank.ExcType;
 import com.wharvex.shank.SyntaxErrorException;
 
 public class Lexer {
@@ -30,7 +31,7 @@ public class Lexer {
         if (!this.stateMachine.curCharCanStartState()) {
           this.charAction = CharAction.ERROR;
           this.stateMachine.setExceptionDetails(
-              SyntaxErrorException.ExcType.INVALID_CHAR, "Invalid character to start a new state.");
+              ExcType.INVALID_CHAR, "Invalid character to start a new state.");
         } else {
           this.charAction = this.stateMachine.getCharAction(CharAction.START_STATE);
         }
@@ -46,7 +47,7 @@ public class Lexer {
           this.charAction = this.stateMachine.getCharAction(CharAction.MORPH_STATE);
         } else if (this.stateMachine.curCharErrorsCurState()) {
           this.charAction = CharAction.ERROR;
-          this.stateMachine.setExceptionDetails(SyntaxErrorException.ExcType.INVALID_CHAR, "");
+          this.stateMachine.setExceptionDetails(ExcType.INVALID_CHAR, "");
         } else {
           this.charAction = this.stateMachine.getCharAction(CharAction.STOP_STATE_AS_NON_MEMBER);
         }
@@ -66,7 +67,7 @@ public class Lexer {
               this.stateMachine.accTokenIfNeeded();
             } else {
               this.stateMachine.setExceptionDetails(
-                  SyntaxErrorException.ExcType.INVALID_CHAR,
+                  ExcType.INVALID_CHAR,
                   "Invalid character to start a new state: ");
               this.stateMachine.switchToErrorState();
             }
@@ -112,7 +113,7 @@ public class Lexer {
               }
             } else {
               this.stateMachine.setExceptionDetails(
-                  SyntaxErrorException.ExcType.INVALID_CHAR,
+                  ExcType.INVALID_CHAR,
                   "Invalid character to start a new state.");
               this.stateMachine.switchToErrorState();
             }

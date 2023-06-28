@@ -1,5 +1,6 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
+import com.wharvex.shank.parser.ParserHelper;
 import java.util.List;
 
 public class FunctionCallNode extends StatementNode {
@@ -26,7 +27,7 @@ public class FunctionCallNode extends StatementNode {
   public String toString() {
     return this.getFuncName()
         + "(args: "
-        + (this.getArgs() == null ? "none" : Parser.listToStringInline(this.getArgs()))
+        + (this.getArgs() == null ? "none" : ParserHelper.listToStringInline(this.getArgs()))
         + ")";
   }
 }

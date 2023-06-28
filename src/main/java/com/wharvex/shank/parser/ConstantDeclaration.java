@@ -2,11 +2,11 @@ package com.wharvex.shank.parser;
 
 public class ConstantDeclaration {
 
-  private final VariableNode.VariableType type;
+  private final VariableType type;
   private final String name;
   private final String val;
 
-  public ConstantDeclaration(String name, VariableNode.VariableType type, String val) {
+  public ConstantDeclaration(String name, VariableType type, String val) {
     this.name = name;
     this.type = type;
     this.val = val;
@@ -20,7 +20,7 @@ public class ConstantDeclaration {
     return this.val;
   }
 
-  public VariableNode.VariableType getType() {
+  public VariableType getType() {
     return this.type;
   }
 }

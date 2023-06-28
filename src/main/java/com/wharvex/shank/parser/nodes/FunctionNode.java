@@ -1,5 +1,6 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
+import com.wharvex.shank.parser.ParserHelper;
 import java.util.List;
 
 public class FunctionNode extends Node {
@@ -64,16 +65,16 @@ public class FunctionNode extends Node {
         + " {"
         + "\n  Params:\n"
         + "    "
-        + Parser.listToString(this.params)
+        + ParserHelper.listToString(this.params)
         + "\n\n  Variables:\n"
         + "    "
-        + Parser.listToString(this.variables)
+        + ParserHelper.listToString(this.variables)
         + "\n\n  Constants:\n"
         + "    "
-        + Parser.listToString(this.constants)
+        + ParserHelper.listToString(this.constants)
         + "\n\n  Statements:\n"
         + "    "
-        + Parser.listToString(this.statements)
+        + ParserHelper.listToString(this.statements)
         + "\n}\n";
   }
 }

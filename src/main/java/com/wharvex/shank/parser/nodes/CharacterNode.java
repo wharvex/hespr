@@ -1,4 +1,4 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
 public class CharacterNode extends Node {
   private char val;

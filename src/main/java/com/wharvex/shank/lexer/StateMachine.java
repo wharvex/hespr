@@ -1,6 +1,6 @@
 package com.wharvex.shank.lexer;
 
-import com.wharvex.shank.SyntaxErrorException;
+import com.wharvex.shank.ExcType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 public class StateMachine {
 
   private String exceptionProblem, tokenValueStringTemp;
-  private SyntaxErrorException.ExcType exceptionType;
+  private ExcType exceptionType;
   private CharType[] charTypes; // Array of CharType enum vals at indices equal to their ASCII code
   private StateType curState, prevState; // State in current vs. previous position
   private char curChar; // The current character lex is reading
@@ -120,7 +120,7 @@ public class StateMachine {
    * @param
    * @return
    */
-  public void setExceptionDetails(SyntaxErrorException.ExcType exceptionType, String problem) {
+  public void setExceptionDetails(ExcType exceptionType, String problem) {
     this.exceptionType = exceptionType;
     this.exceptionProblem = problem;
   }
@@ -172,7 +172,7 @@ public class StateMachine {
    * @param
    * @return
    */
-  public SyntaxErrorException.ExcType getExceptionType() {
+  public ExcType getExceptionType() {
     return this.exceptionType;
   }
 
@@ -365,7 +365,7 @@ public class StateMachine {
       }
     }
     this.setExceptionDetails(
-        SyntaxErrorException.ExcType.INTERNAL_ERROR,
+        ExcType.INTERNAL_ERROR,
         "State that can be started by curChar not found.");
     return StateType.ERROR;
   }
@@ -401,7 +401,7 @@ public class StateMachine {
       }
     }
     this.setExceptionDetails(
-        SyntaxErrorException.ExcType.INTERNAL_ERROR,
+        ExcType.INTERNAL_ERROR,
         "State that curChar can morph curState to not found.");
     return StateType.ERROR;
   }
@@ -622,7 +622,7 @@ public class StateMachine {
     CharType checkType =
         this.curStateHasTokenType() ? this.getLastCharTypeFromTVST() : this.getCurCharType();
     if (this.getCurState().stopCharType != checkType) {
-      this.setExceptionDetails(SyntaxErrorException.ExcType.NEEDS_CLOSURE, "");
+      this.setExceptionDetails(ExcType.NEEDS_CLOSURE, "");
       return true;
     } else {
       return false;
@@ -644,7 +644,7 @@ public class StateMachine {
   private boolean curStateBelowMinCharLim() {
     if (this.curStateHasMinCharLen() && this.getTVSTLen() < this.getCurState().minCharLen) {
       this.setExceptionDetails(
-          SyntaxErrorException.ExcType.NOT_ENOUGH_CHARS, this.getTokenValueStringTemp());
+          ExcType.NOT_ENOUGH_CHARS, this.getTokenValueStringTemp());
       return true;
     } else {
       return false;

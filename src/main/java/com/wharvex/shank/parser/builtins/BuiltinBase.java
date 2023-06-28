@@ -1,8 +1,8 @@
 package com.wharvex.shank.parser.builtins;
 
 import com.wharvex.shank.interpreter.InterpreterDataType;
-import com.wharvex.shank.parser.FunctionNode;
-import com.wharvex.shank.parser.VariableNode;
+import com.wharvex.shank.parser.nodes.FunctionNode;
+import com.wharvex.shank.parser.nodes.VariableNode;
 import com.wharvex.shank.semantic.SemanticErrorException;
 import java.util.List;
 

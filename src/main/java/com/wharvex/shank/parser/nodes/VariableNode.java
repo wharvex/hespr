@@ -1,17 +1,11 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
+
+import com.wharvex.shank.parser.VariableRange;
+import com.wharvex.shank.parser.VariableType;
 
 public class VariableNode extends Node {
 
-  public enum VariableType {
-    STRING,
-    CHARACTER,
-    INTEGER,
-    REAL,
-    BOOLEAN,
-    ANY
-  }
-
-  private String name;
+  private final String name;
 
   public String getVal() {
     return val;
@@ -22,9 +16,10 @@ public class VariableNode extends Node {
   }
 
   private String val;
-  private boolean isChangeable, isArray;
-  private VariableType type;
-  private VariableRange range;
+  private final boolean isChangeable;
+  private final boolean isArray;
+  private final VariableType type;
+  private final VariableRange range;
 
   public VariableNode(
       String name,
@@ -40,6 +35,7 @@ public class VariableNode extends Node {
     this.lineNum = lineNum;
     this.range = range;
   }
+
   public VariableNode(
       String name,
       VariableType type,

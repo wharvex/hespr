@@ -1,6 +1,7 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
 import com.wharvex.shank.lexer.TokenType;
+import com.wharvex.shank.parser.ParserHelper;
 import java.util.List;
 
 public class IfNode extends StatementNode {
@@ -53,7 +54,7 @@ public class IfNode extends StatementNode {
     String condition =
         this.getIfOrElsifOrElse() == TokenType.ELSE ? "" : this.getCondition().toString();
     String ret =
-        head + " " + condition + " {\n    " + Parser.listToString(this.statements) + "\n    } ";
+        head + " " + condition + " {\n    " + ParserHelper.listToString(this.statements) + "\n    } ";
     return ret + (this.getNextIf() == null ? "" : this.getNextIf().toString());
   }
 }

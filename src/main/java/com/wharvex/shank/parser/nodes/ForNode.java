@@ -1,5 +1,6 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
+import com.wharvex.shank.parser.ParserHelper;
 import java.util.List;
 
 public class ForNode extends StatementNode {
@@ -41,7 +42,7 @@ public class ForNode extends StatementNode {
             + ", to: "
             + this.getTo()
             + ") {\n    "
-            + Parser.listToString(this.statements)
+            + ParserHelper.listToString(this.statements)
             + "\n    }";
     return ret;
   }

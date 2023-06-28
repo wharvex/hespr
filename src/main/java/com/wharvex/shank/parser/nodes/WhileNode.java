@@ -1,13 +1,14 @@
-package com.wharvex.shank.parser;
+package com.wharvex.shank.parser.nodes;
 
+import com.wharvex.shank.parser.ParserHelper;
 import java.util.List;
 
-public class RepeatNode extends StatementNode {
+public class WhileNode extends StatementNode {
 
   Node condition;
   private List<StatementNode> statements;
 
-  public RepeatNode(Node condition, List<StatementNode> statements) {
+  public WhileNode(Node condition, List<StatementNode> statements) {
     this.condition = condition;
     this.statements = statements;
   }
@@ -21,10 +22,10 @@ public class RepeatNode extends StatementNode {
   }
 
   public String toString() {
-    return "repeat until "
+    return "while "
         + this.getCondition()
         + " {\n    "
-        + Parser.listToString(this.statements)
+        + ParserHelper.listToString(this.statements)
         + "\n    }";
   }
 }

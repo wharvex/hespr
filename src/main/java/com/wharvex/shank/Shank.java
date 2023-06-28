@@ -3,7 +3,7 @@ package com.wharvex.shank;
 import com.wharvex.shank.interpreter.Interpreter;
 import com.wharvex.shank.lexer.Lexer;
 import com.wharvex.shank.parser.Parser;
-import com.wharvex.shank.parser.ProgramNode;
+import com.wharvex.shank.parser.nodes.ProgramNode;
 import com.wharvex.shank.semantic.SemanticAnalysis;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;

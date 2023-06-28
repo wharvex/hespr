@@ -1,14 +1,14 @@
 package com.wharvex.shank.interpreter;
 
-import com.wharvex.shank.parser.Parser;
-import com.wharvex.shank.parser.VariableNode;
+import com.wharvex.shank.parser.ParserHelper;
+import com.wharvex.shank.parser.VariableType;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayDataType extends InterpreterDataType {
 
   private List<InterpreterDataType> storedVal;
-  private VariableNode.VariableType arrType;
+  private VariableType arrType;
   private int from, to;
 
   public int getFrom() {
@@ -19,11 +19,11 @@ public class ArrayDataType extends InterpreterDataType {
     return to;
   }
 
-  public VariableNode.VariableType getArrType() {
+  public VariableType getArrType() {
     return arrType;
   }
 
-  public ArrayDataType(VariableNode.VariableType arrType, int from, int to) {
+  public ArrayDataType(VariableType arrType, int from, int to) {
     this.storedVal = new ArrayList<InterpreterDataType>();
     this.arrType = arrType;
     while (this.storedVal.size() <= to) {
@@ -62,7 +62,7 @@ public class ArrayDataType extends InterpreterDataType {
   }
 
   public String toString() {
-    return Parser.listToString(this.getStoredVal());
+    return ParserHelper.listToString(this.getStoredVal());
   }
 
   public void fromString(String input) {
