@@ -2,45 +2,30 @@ package com.wharvex.hespr.parser;
 
 import com.wharvex.hespr.lexer.Token;
 import com.wharvex.hespr.lexer.TokenType;
+import com.wharvex.hespr.parser.nodes.Node;
 
 public class VariableRange {
 
-  private final Token from, to;
+  private Node from, to;
 
-  public VariableRange(Token from, Token to) {
+  public VariableRange(Node from, Node to) {
     this.from = from;
     this.to = to;
   }
 
   public VariableRange() {
-    this.from = new Token("", TokenType.NONE, -1);
-    this.to = new Token("", TokenType.NONE, -1);
   }
 
-  public int getIntFrom() {
-    return this.from.getTokenType() == TokenType.NUMBER ? Integer.parseInt(
-        this.from.getValueString()) : -1;
+  public Node getFrom() {
+    return this.from;
   }
 
-  public int getIntTo() {
-    return this.to.getTokenType() == TokenType.NUMBER ? Integer.parseInt(this.to.getValueString())
-        : -1;
-  }
-
-  public float getRealFrom() {
-    return this.from.getTokenType() == TokenType.NUMBER_DECIMAL ? Float.parseFloat(
-        this.from.getValueString())
-        : -1;
-  }
-
-  public float getRealTo() {
-    return this.to.getTokenType() == TokenType.NUMBER_DECIMAL ? Float.parseFloat(
-        this.to.getValueString()) : -1;
+  public Node getTo() {
+    return this.to;
   }
 
   @Override
   public String toString() {
-    return this.getIntFrom() + " | " + this.getRealFrom() + " -> " + this.getIntTo() + " | "
-        + this.getRealTo();
+    return this.getFrom() + " to " + this.getTo();
   }
 }

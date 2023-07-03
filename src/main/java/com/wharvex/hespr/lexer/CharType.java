@@ -12,7 +12,6 @@ public enum CharType {
   // A decimal point is ASCII char code 46
   // A space is ASCII char code 32
   SPACE(32),
-  TAB(9),
   DECIMAL(46),
   STAR(42),
   PLUS(43),
@@ -32,6 +31,7 @@ public enum CharType {
   DBLQUOTE(34),
   LCURLY(123),
   RCURLY(125),
+  DOLLAR(36),
   NONE(false);
   int[] range; // The range of ASCII character codes that fit the CharType
 
@@ -51,6 +51,9 @@ public enum CharType {
 
   /**
    * Use this constructor as a catch-all or for CharacterType vals that signal special cases.
+   * Everything in charTypes starts out as whatever CharType uses this constructor, and then all the
+   * other CharTypes get added to charTypes in their ascii-code-correspondent index positions in the
+   * StateMachine constructor
    */
   CharType(boolean catchAll) {
     if (catchAll) {

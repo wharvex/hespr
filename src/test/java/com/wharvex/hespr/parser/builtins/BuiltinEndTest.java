@@ -14,7 +14,7 @@ public class BuiltinEndTest {
   public void execute() {
     var end = new BuiltinEnd();
     var endRet = new IntegerDataType(0);
-    end.execute(Arrays.asList(new ArrayDataType(VariableType.INTEGER, 0, 1), endRet));
-    assertEquals(1, endRet.getStoredVal());
+    end.execute(Arrays.asList(new ArrayDataType(VariableType.INTEGER, 0, 5), endRet));
+    assertEquals(5, endRet.getStoredVal());
   }
 }

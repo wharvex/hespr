@@ -10,20 +10,20 @@ public class ParserHelper {
 
   static final List<TokenType> dataTypes = List.of(
       TokenType.REAL,
-      TokenType.INTEGER,
-      TokenType.BOOLEAN,
-      TokenType.STRING,
-      TokenType.CHARACTER);
+      TokenType.INT,
+      TokenType.BOOL,
+      TokenType.STR,
+      TokenType.CHAR);
   static final List<TokenType> dataTypesIncArr = List.of(
-      TokenType.ARRAY,
+      TokenType.ARR,
       TokenType.REAL,
-      TokenType.INTEGER,
-      TokenType.BOOLEAN,
-      TokenType.STRING,
-      TokenType.CHARACTER);
+      TokenType.INT,
+      TokenType.BOOL,
+      TokenType.STR,
+      TokenType.CHAR);
   static final List<TokenType> varConstIndent = List.of(
-      TokenType.VARIABLES,
-      TokenType.CONSTANTS,
+      TokenType.FLUX,
+      TokenType.PERM,
       TokenType.INDENT);
   static final List<TokenType> literalTypesIncMinus = List.of(
       TokenType.NUMBER_DECIMAL,
@@ -31,13 +31,13 @@ public class ParserHelper {
       TokenType.STRINGLITERAL,
       TokenType.CHARACTERLITERAL,
       TokenType.TRUE,
-      TokenType.FALSE,
+      TokenType.FALS,
       TokenType.MINUS);
   static final List<TokenType> statementInitTypes = List.of(
-      TokenType.FOR,
-      TokenType.WHILE,
-      TokenType.REPEAT,
-      TokenType.IF,
+      TokenType.WITH,
+      TokenType.WHIL,
+      TokenType.TILL,
+      TokenType.WHEN,
       TokenType.IDENTIFIER,
       TokenType.DEDENT);
   static final List<TokenType> factorTypes = List.of(
@@ -47,7 +47,7 @@ public class ParserHelper {
       TokenType.IDENTIFIER,
       TokenType.LPAREN,
       TokenType.TRUE,
-      TokenType.FALSE,
+      TokenType.FALS,
       TokenType.STRINGLITERAL,
       TokenType.CHARACTERLITERAL);
   static final List<TokenType> termOpTypes = List.of(
@@ -72,11 +72,11 @@ public class ParserHelper {
 
   static VariableType getVarTypeFromTokenType(TokenType tt) {
     return switch (tt) {
-      case STRING, STRINGLITERAL -> VariableType.STRING;
-      case CHARACTER, CHARACTERLITERAL -> VariableType.CHARACTER;
-      case INTEGER, NUMBER -> VariableType.INTEGER;
+      case STR, STRINGLITERAL -> VariableType.STRING;
+      case CHAR, CHARACTERLITERAL -> VariableType.CHARACTER;
+      case INT, NUMBER -> VariableType.INTEGER;
       case REAL, NUMBER_DECIMAL -> VariableType.REAL;
-      case BOOLEAN, TRUE, FALSE -> VariableType.BOOLEAN;
+      case BOOL, TRUE, FALS -> VariableType.BOOLEAN;
       default -> VariableType.ANY;
     };
   }

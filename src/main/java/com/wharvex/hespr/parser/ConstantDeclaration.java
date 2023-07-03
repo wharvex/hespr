@@ -1,14 +1,14 @@
 package com.wharvex.hespr.parser;
 
+import com.wharvex.hespr.parser.nodes.Node;
+
 public class ConstantDeclaration {
 
-  private final VariableType type;
   private final String name;
-  private final String val;
+  private final Node val;
 
-  public ConstantDeclaration(String name, VariableType type, String val) {
+  public ConstantDeclaration(String name, Node val) {
     this.name = name;
-    this.type = type;
     this.val = val;
   }
 
@@ -16,11 +16,7 @@ public class ConstantDeclaration {
     return this.name;
   }
 
-  public String getVal() {
+  public Node getVal() {
     return this.val;
-  }
-
-  public VariableType getType() {
-    return this.type;
   }
 }

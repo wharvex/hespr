@@ -4,6 +4,7 @@ import com.wharvex.hespr.lexer.TokenType;
 import com.wharvex.hespr.parser.nodes.AssignmentNode;
 import com.wharvex.hespr.parser.nodes.BooleanCompareNode;
 import com.wharvex.hespr.parser.nodes.BooleanNode;
+import com.wharvex.hespr.parser.nodes.CharacterNode;
 import com.wharvex.hespr.parser.nodes.ForNode;
 import com.wharvex.hespr.parser.nodes.FunctionCallNode;
 import com.wharvex.hespr.parser.nodes.FunctionNode;
@@ -49,37 +50,42 @@ public class Interpreter {
     this.interpretFunction(this.getFunction("start"), new ArrayList<>());
   }
 
-  private InterpreterDataType makeDataTypeFromVarNode(VariableNode v) {
-    String val = v.getVal();
+  private InterpreterDataType makeDataTypeFromVarNode(VariableNode v,
+      HashMap<String, InterpreterDataType> vars) throws Exception {
+    Node val = v.getVal();
     InterpreterDataType ret;
     if (v.getIsArray()) {
       ret = new ArrayDataType(v.getType(), v.getIntFrom(), v.getIntTo());
       ret.setInitialized(true);
-    } else {
+    } else if (val == null) {
+
       switch (v.getType()) {
         case STRING -> {
-          ret = new StringDataType(val);
+          ret = new StringDataType("",
+              (IntegerDataType) this.expression(v.getRange().getFrom(), vars),
+              (IntegerDataType) this.expression(v.getRange().getTo(), vars));
           ret.setInitialized(false);
         }
         case CHARACTER -> {
-          ret = new CharacterDataType(val != null ? val.charAt(0) : '0');
+          ret = new CharacterDataType('0');
           ret.setInitialized(false);
         }
         case INTEGER -> {
-          ret = new IntegerDataType(val != null ? Integer.parseInt(val) : 0);
+          ret = new IntegerDataType(0);
           ret.setInitialized(false);
         }
         case REAL -> {
-          ret = new RealDataType(val != null ? Float.parseFloat(val) : 0);
+          ret = new RealDataType(0);
           ret.setInitialized(false);
         }
         case BOOLEAN -> {
-          // parseBoolean returns false if its arg is null
-          ret = new BooleanDataType(Boolean.parseBoolean(val));
+          ret = new BooleanDataType(false);
           ret.setInitialized(false);
         }
         default -> ret = null;
       }
+    } else {
+      ret = this.expression(val, vars);
     }
     return ret;
   }
@@ -101,20 +107,18 @@ public class Interpreter {
         if (vars.containsKey(v.getName())) {
           throw new Exception("Cannot redeclare parameter " + v.getName());
         }
-        InterpreterDataType idt = this.makeDataTypeFromVarNode(v);
+        InterpreterDataType idt = this.makeDataTypeFromVarNode(v, vars);
         idt.setIsChangeable(true);
         idt.setIsVar(false);
         vars.put(v.getName(), idt);
       }
     }
     if (f.getConstants() != null) {
-      // Constant declarations are not considered statements, so this does the job of the
-      // "constantNodes" function mentioned in the Interpreter 2 assignment instructions
       for (VariableNode v : f.getConstants()) {
         if (vars.containsKey(v.getName())) {
           throw new Exception("Cannot redeclare parameter/variable " + v.getName());
         }
-        InterpreterDataType idt = this.makeDataTypeFromVarNode(v);
+        InterpreterDataType idt = this.makeDataTypeFromVarNode(v, vars);
         idt.setIsChangeable(false);
         idt.setIsVar(false);
         idt.setInitialized(true);
@@ -391,6 +395,8 @@ public class Interpreter {
         return new StringDataType(((StringNode) n).getVal());
       } else if (n instanceof BooleanNode) {
         return new BooleanDataType(((BooleanNode) n).getVal());
+      } else if (n instanceof CharacterNode) {
+        return new CharacterDataType(((CharacterNode) n).getVal());
       }
     } else {
       InterpreterDataType leftSide = this.expression(((MathOpNode) n).getLeftSide(), vars);

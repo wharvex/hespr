@@ -292,7 +292,7 @@ public class StateMachine {
       return;
     }
     if (this.getCurState() == StateType.SPACE) {
-      for (int i = 0; i < this.getTVSTLen() / 4; i++) {
+      for (int i = 0; i < this.getTVSTLen() / 5; i++) {
         this.tokens.add(new Token("", TokenType.RAW_INDENT, this.getCurLineNum()));
       }
       this.clearTokenValueStringTemp();

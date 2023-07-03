@@ -21,17 +21,6 @@ public enum StateType {
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
       TokenType.RAW_INDENT), // tokenType
-  TAB(
-      CharType.TAB, // startCharType
-      new CharType[]{}, // continueCharTypes
-      CharType.NONE, // stopCharType
-      CharType.NONE, // morphedFromCharType
-      new CharType[]{}, // morphToCharTypes
-      CharType.NONE, // morphIdentifier
-      false, // spansLines
-      -1, // minCharLen
-      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
-      TokenType.RAW_INDENT), // tokenType
   COMMENT(
       CharType.LCURLY, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -103,7 +92,7 @@ public enum StateType {
       new CharType[]{}, // continueCharTypes
       CharType.NONE, // stopCharType
       CharType.NONE, // morphedFromCharType
-      new CharType[]{}, // morphToCharTypes
+      new CharType[]{CharType.GREATERTHAN}, // morphToCharTypes
       CharType.NONE, // morphIdentifier
       false, // spansLines
       -1, // minCharLen
@@ -131,6 +120,17 @@ public enum StateType {
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
       TokenType.SEMICOLON), // tokenType
+  DOLLAR(
+      CharType.DOLLAR, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
+      TokenType.VAR), // tokenType
   LPAREN(
       CharType.LPAREN, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -263,6 +263,17 @@ public enum StateType {
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
       TokenType.ASSIGN), // tokenType
+  ARROW(
+      CharType.NONE, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.MINUS, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.GREATERTHAN, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
+      TokenType.ARROW), // tokenType
   IDENTIFIER(
       CharType.LETTER, // startCharType
       new CharType[]{CharType.LETTER, CharType.DIGIT}, // continueCharTypes

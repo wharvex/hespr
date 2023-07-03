@@ -7,15 +7,15 @@ public class VariableNode extends Node {
 
   private final String name;
 
-  public String getVal() {
+  public Node getVal() {
     return val;
   }
 
-  public void setVal(String val) {
+  public void setVal(Node val) {
     this.val = val;
   }
 
-  private String val;
+  private Node val;
   private final boolean isChangeable;
   private final boolean isArray;
   private final VariableType type;
@@ -67,7 +67,7 @@ public class VariableNode extends Node {
     return this.type;
   }
 
-  private VariableRange getRange() {
+  public VariableRange getRange() {
     return this.range;
   }
 

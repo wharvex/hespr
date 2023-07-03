@@ -1,45 +1,48 @@
 { comment}
 
 
-blok gcdIter(a, b : integer; var divisor : integer)
-variables newA, newB, remainder : integer
-    newA := a
-    newB := b
-    while newA mod newB > 0
-        remainder := newA mod newB
-        newA := newB
-        newB := remainder
-    divisor := newB
+blok gcdIter(a b, int; $divisor, int)
+flux newA newB remainder, int
+     newA := a
+     newB := b
+     whil newA mod newB > 0
+          remainder := newA mod newB
+          newA := newB
+          newB := remainder
+     divisor := newB
 
 
-blok gcdRec(a, b : integer; var divisor : integer)
-    if b = 0 then
-        divisor := a
-    else
-        { Can Shank evaluate expressions that are passed in as arguments
-        when calling a function? }
-        gcdRec b, a mod b, var divisor
+blok gcdRec(a b, int; $divisor, int)
+     when b = 0 then
+          divisor := a
+     else
+          gcdRec, b (a mod b) $divisor
 
 blok yes()
-    Write "yes"
+     Write, "yes"
 
 blok start()
-variables divisorArg : integer
-constants class = "ICSI311", goodGrade = 95
-    { Expected output: 1 }
-    gcdRec 57, 25, var divisorArg
-    Write "GCD of 57 and 25. Expected: 1. Calculated: "+divisorArg
+flux divisorArg divisorArg2 a, int
+flux myStr myStr2, str 1 -> 5
+perm myStr "what"; myInt (5 + 7); myInt2 99
+     { expected output: 1 }
+     gcdRec, 57 (25 + 1) $divisorArg
+     Write, ("GCD of 57 and 25. Expected: 1. Calculated: " + divisorArg)
+     with divisorArg2: (a + 5) -> 6
+          myStr =_ myStr + 1
 
-    { Expected output: 5 }
-    gcdIter 55, 25, var divisorArg
-    Write "GCD of 55 and 25. Expected: 5. Calculated: "+divisorArg
+     { Expected output: 5 }
+     gcdIter, 55 25 $divisorArg
+     Write, ("GCD of 55 and 25. Expected: 5. Calculated: " + divisorArg)
 
-    { Expected output: 4 }
-    gcdRec 460, 64, var divisorArg
-    Write "GCD of 460 and 64. Expected: 4. Calculated: "+divisorArg
+     { Expected output: 4 }
+     gcdRec, 460 64 $divisorArg
+     Write, ("GCD of 460 and 64. Expected: 4. Calculated: " + divisorArg)
 
-    { Expected output: 9 }
-    gcdIter 1035, 747, var divisorArg
-    Write "GCD of 1035 and 747. Expected: 9. Calculated:",divisorArg
-    yes
-    Write ""
+     { Expected output: 9 }
+     gcdIter, 1035 747 $divisorArg
+     Write, "GCD of 1035 and 747. Expected: 9. Calculated:" divisorArg
+     yes,
+     myStr2 := "when"
+     Write, myStr myInt myStr2
+     Write ""
