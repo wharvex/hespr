@@ -55,15 +55,15 @@ public class Interpreter {
     Node val = v.getVal();
     InterpreterDataType ret;
     if (v.getIsArray()) {
-      ret = new ArrayDataType(v.getType(), v.getIntFrom(), v.getIntTo());
+      ret = new ArrayDataType(v.getType(), ((IntegerDataType) this.expression(v.getRange().getFrom(), vars)).getStoredVal(), ((IntegerDataType) this.expression(v.getRange().getTo(), vars)).getStoredVal());
       ret.setInitialized(true);
     } else if (val == null) {
 
       switch (v.getType()) {
         case STRING -> {
           ret = new StringDataType("",
-              (IntegerDataType) this.expression(v.getRange().getFrom(), vars),
-              (IntegerDataType) this.expression(v.getRange().getTo(), vars));
+              ((IntegerDataType) this.expression(v.getRange().getFrom(), vars)).getStoredVal(),
+              ((IntegerDataType) this.expression(v.getRange().getTo(), vars)).getStoredVal());
           ret.setInitialized(false);
         }
         case CHARACTER -> {

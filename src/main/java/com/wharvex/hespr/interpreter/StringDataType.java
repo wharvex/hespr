@@ -4,11 +4,19 @@ public class StringDataType extends InterpreterDataType {
 
   private String storedVal;
 
-  private IntegerDataType from;
-  private IntegerDataType to;
+  private int from;
+  private int to;
 
-  public StringDataType(String storedVal, IntegerDataType from, IntegerDataType to) {
+  public StringDataType(String storedVal, int from, int to) {
     this.storedVal = storedVal;
+    this.from = from;
+    this.to = to;
+  }
+
+  public StringDataType(String storedVal) {
+    this.storedVal = storedVal;
+    this.from = -1;
+    this.to = -1;
   }
 
   public String getStoredVal() {
@@ -19,11 +27,11 @@ public class StringDataType extends InterpreterDataType {
     this.storedVal = storedVal;
   }
 
-  public IntegerDataType getFrom() {
+  public int getFrom() {
     return from;
   }
 
-  public IntegerDataType getTo() {
+  public int getTo() {
     return to;
   }
 

@@ -125,7 +125,7 @@ public class Parser {
         : Optional.empty();
   }
 
-  private void expectsEndOfLine() throws Exception {
+  private void expectsEndOfLine() throws SyntaxErrorException {
     this.optionalMatchAndRemoveTokenSafe(TokenType.ENDOFLINE)
         .orElseThrow(() -> new SyntaxErrorException(TokenType.ENDOFLINE, this.getCurToken()));
     this.eatEOLs();
@@ -266,20 +266,25 @@ public class Parser {
   }
 
   private FunctionNode parseFunc() throws Exception {
-    Token defineToken = this.optionalMatchAndRemoveTokenSafe(TokenType.BLOK)
-        .orElseThrow(() -> new SyntaxErrorException(
-            TokenType.BLOK, this.getCurToken()));
+    Token blokToken = this.optionalMatchAndRemoveTokenSafe(TokenType.BLOK)
+        .orElseThrow(() -> new SyntaxErrorException(TokenType.BLOK, this.getCurToken()));
     Token funcName = this.optionalMatchAndRemoveTokenSafe(TokenType.IDENTIFIER).orElseThrow(
         () -> new SyntaxErrorException(TokenType.IDENTIFIER, this.getCurToken()));
-    this.optionalMatchAndRemoveTokenSafe(TokenType.LPAREN).orElseThrow(
-        () -> new SyntaxErrorException(TokenType.LPAREN, this.getCurToken()));
-    if (this.findBeforeNextEOL(TokenType.RPAREN) < 0) {
-      throw new SyntaxErrorException(TokenType.RPAREN, this.getCurToken());
+
+    // PARAMETER DECLARATIONS
+
+    List<VariableNode> paramVars = new ArrayList<>();
+    if (this.optionalMatchAndRemoveTokenSafe(TokenType.TILDE).isEmpty()) {
+      this.optionalMatchAndRemoveTokenSafe(TokenType.PIPE).orElseThrow(
+          () -> new SyntaxErrorException(TokenType.PIPE, this.getCurToken()));
+      if (this.findBeforeNextEOL(TokenType.PIPE) < 0) {
+        throw new SyntaxErrorException(TokenType.PIPE, this.getCurToken());
+      }
+      this.parseParamDeclarations(paramVars);
     }
-    List<VariableNode> paramVars = this.parseParameterDeclarations();
     this.expectsEndOfLine();
 
-    // LOCAL DECLARATIONS
+    // LOCAL VARIABLE/CONSTANT DECLARATIONS
 
     List<VariableNode> variableVars = new ArrayList<>();
     List<VariableNode> constVars = new ArrayList<>();
@@ -301,35 +306,33 @@ public class Parser {
         throw new SyntaxErrorException(ParserHelper.varConstIndent, this.getCurToken());
       }
     }
+
+    // GET STATEMENTS AND RETURN
+
     List<StatementNode> statements = this.parseStatements()
-        .orElseThrow(() -> new SyntaxErrorException(defineToken));
+        .orElseThrow(() -> new SyntaxErrorException(blokToken));
     return new FunctionNode(
         funcName.getValueString(), paramVars, variableVars, constVars, statements,
-        defineToken.getTokenLineNum());
+        blokToken.getTokenLineNum());
   }
 
   private void parseVariables(List<VariableNode> vars) throws Exception {
-    List<Token> varNames = this.parseVariableNames();
+    List<VariableNode> varNames = this.parseLocalVarNames();
+    this.parseVarsTypeAndRange(varNames);
+    vars.addAll(varNames);
+  }
+
+  private void parseVarsTypeAndRange(List<VariableNode> variables) throws SyntaxErrorException {
     TokenType dataTypeTokenType = this.optionalMatchAndRemoveTokenSafe(ParserHelper.dataTypes)
         .map(Token::getTokenType)
         .orElseThrow(() -> new SyntaxErrorException(ParserHelper.dataTypes, this.getCurToken()));
     boolean isArray = this.optionalMatchAndRemoveTokenSafe(TokenType.ARR).isPresent();
     VariableRange range =
         this.curTokenTypeIs(ParserHelper.factorTypes) ? this.parseRange() : new VariableRange();
-    VariableType varType;
-    if (isArray) {
-      this.optionalMatchAndRemoveTokenSafe(TokenType.OF)
-          .orElseThrow(() -> new SyntaxErrorException(TokenType.OF, this.getCurToken()));
-      varType = this.optionalMatchAndRemoveTokenSafe(ParserHelper.dataTypes)
-          .map(token -> ParserHelper.getVarTypeFromTokenType(token.getTokenType()))
-          .orElseThrow(() -> new SyntaxErrorException(ParserHelper.dataTypes, this.getCurToken()));
-    } else {
-      varType = ParserHelper.getVarTypeFromTokenType(dataTypeTokenType);
-    }
-    for (Token vn : varNames) {
-      vars.add(
-          new VariableNode(
-              vn.getValueString(), varType, true, isArray, this.getCurTokenLineNum(), range));
+    for (VariableNode variableNode : variables) {
+      variableNode.setType(ParserHelper.getVarTypeFromTokenType(dataTypeTokenType));
+      variableNode.setIsArray(isArray);
+      variableNode.setRange(range);
     }
   }
 
@@ -363,16 +366,27 @@ public class Parser {
     return (new ConstantDeclaration(name.getValueString(), this.parseFactor()));
   }
 
-  private List<Token> parseVariableNames() throws SyntaxErrorException {
-    List<Token> varNameTokens = new ArrayList<>();
+  private void parseParamVarNames(List<VariableNode> varNodes) throws SyntaxErrorException {
     do {
-      varNameTokens.add(this.optionalMatchAndRemoveTokenSafe(TokenType.IDENTIFIER)
+      boolean isVar = this.optionalMatchAndRemoveTokenSafe(TokenType.VAR).isPresent();
+      varNodes.add(this.optionalMatchAndRemoveTokenSafe(TokenType.IDENTIFIER)
+          .map(idToken -> new VariableNode(idToken.getValueString(), isVar,
+              idToken.getTokenLineNum()))
+          .orElseThrow(() -> new SyntaxErrorException(TokenType.IDENTIFIER, this.getCurToken())));
+    } while (this.optionalMatchAndRemoveTokenSafe(TokenType.COMMA).isEmpty());
+  }
+
+  private List<VariableNode> parseLocalVarNames() throws SyntaxErrorException {
+    List<VariableNode> varNodes = new ArrayList<>();
+    do {
+      varNodes.add(this.optionalMatchAndRemoveTokenSafe(TokenType.IDENTIFIER)
+          .map(idToken -> new VariableNode(idToken.getValueString(), false,
+              idToken.getTokenLineNum()))
           .orElseThrow(() -> new SyntaxErrorException(TokenType.IDENTIFIER, this.getCurToken())));
     }
     while (this.optionalMatchAndRemoveTokenSafe(TokenType.COMMA).isEmpty());
-    return varNameTokens;
+    return varNodes;
   }
-
 
   private VariableRange parseRange() throws SyntaxErrorException {
     Node from = this.parseFactor();
@@ -382,39 +396,15 @@ public class Parser {
     return new VariableRange(from, this.parseFactor());
   }
 
-  private List<VariableNode> parseParameterDeclarations() throws SyntaxErrorException {
-    List<VariableNode> ret = new ArrayList<>();
-    boolean changeable, isArray;
-    isArray = false;
-    List<Token> varNames;
-    TokenType varType;
-    this.optionalMatchAndRemoveTokenSafe(TokenType.RPAREN);
-    while (!this.prevTokenTypeIs(TokenType.RPAREN)) {
-      changeable = this.optionalMatchAndRemoveTokenSafe(TokenType.VAR).isPresent();
-      varNames = this.parseVariableNames();
-      isArray = this.optionalMatchAndRemoveTokenSafe(ParserHelper.dataTypesIncArr)
-          .map(dataType -> dataType.getTokenType() == TokenType.ARR)
-          .orElseThrow(
-              () -> new SyntaxErrorException(ParserHelper.dataTypesIncArr, this.getCurToken()));
-      if (isArray) {
-        this.optionalMatchAndRemoveTokenSafe(ParserHelper.dataTypes).orElseThrow(
-            () -> new SyntaxErrorException(ParserHelper.dataTypes, this.getCurToken()));
-      }
-      varType = this.getPrevTokenType();
-      this.optionalMatchAndRemoveTokenSafe(List.of(TokenType.SEMICOLON, TokenType.RPAREN))
-          .orElseThrow(
-              () -> new SyntaxErrorException(List.of(TokenType.SEMICOLON, TokenType.RPAREN),
-                  this.getCurToken()));
-      for (Token vn : varNames) {
-        ret.add(
-            new VariableNode(
-                vn.getValueString(),
-                ParserHelper.getVarTypeFromTokenType(varType),
-                changeable,
-                isArray, this.getCurTokenLineNum(), new VariableRange()));
-      }
+  private void parseParamDeclarations(List<VariableNode> paramVars) throws SyntaxErrorException {
+    while (this.optionalMatchAndRemoveTokenSafe(TokenType.PIPE).isEmpty()) {
+      do {
+        this.parseParamVarNames(paramVars);
+        this.parseVarsTypeAndRange(paramVars);
+      } while (this.optionalMatchAndRemoveTokenSafe(TokenType.SEMICOLON).isEmpty()
+          && !this.curTokenTypeIs(
+          TokenType.PIPE));
     }
-    return ret;
   }
 
   private Node parseBoolCompare() throws SyntaxErrorException {
@@ -500,8 +490,9 @@ public class Parser {
             TokenType.IDENTIFIER, this.getCurToken()));
     // TODO: Ensure in semantic analysis that this varRef has no array subscript
     VariableReferenceNode varRef = this.parseVariableRef();
-    this.optionalMatchAndRemoveTokenSafe(TokenType.COLON).orElseThrow(() -> new SyntaxErrorException(
-        TokenType.COLON, this.getCurToken()));
+    this.optionalMatchAndRemoveTokenSafe(TokenType.COLON)
+        .orElseThrow(() -> new SyntaxErrorException(
+            TokenType.COLON, this.getCurToken()));
     VariableRange withRange = this.parseRange();
     this.expectsEndOfLine();
     return new ForNode(varRef, withRange.getFrom(), withRange.getTo(),
@@ -569,7 +560,8 @@ public class Parser {
 
   private FunctionCallNode parseFunctionCall() throws Exception {
     Token funcName = this.getPrevToken();
-    this.optionalMatchAndRemoveTokenSafe(TokenType.COMMA);
+    this.optionalMatchAndRemoveTokenSafe(TokenType.BANG).orElseThrow(() -> new SyntaxErrorException(
+        TokenType.BANG, this.getCurToken()));
     if (this.curTokenTypeIs(TokenType.ENDOFLINE)) {
       this.expectsEndOfLine();
       return new FunctionCallNode(funcName.getValueString(), funcName.getTokenLineNum());

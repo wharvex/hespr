@@ -17,9 +17,10 @@ public class VariableNode extends Node {
 
   private Node val;
   private final boolean isChangeable;
-  private final boolean isArray;
-  private final VariableType type;
-  private final VariableRange range;
+
+  private boolean isArray;
+  private VariableType type;
+  private VariableRange range;
 
   public VariableNode(
       String name,
@@ -48,6 +49,15 @@ public class VariableNode extends Node {
     this.isArray = isArray;
     this.lineNum = lineNum;
     this.range = new VariableRange();
+  }
+
+  public VariableNode(
+      String name,
+      boolean isChangeable,
+      int lineNum) {
+    this.name = name;
+    this.isChangeable = isChangeable;
+    this.lineNum = lineNum;
   }
 
   /**
@@ -83,20 +93,16 @@ public class VariableNode extends Node {
     return this.name;
   }
 
-  public int getIntFrom() {
-    return this.getRange().getIntFrom();
+  public void setIsArray(boolean isArray) {
+    this.isArray = isArray;
   }
 
-  public int getIntTo() {
-    return this.getRange().getIntTo();
+  public void setType(VariableType type) {
+    this.type = type;
   }
 
-  public float getRealFrom() {
-    return this.getRange().getRealFrom();
-  }
-
-  public float getRealTo() {
-    return this.getRange().getRealTo();
+  public void setRange(VariableRange range) {
+    this.range = range;
   }
 
   public String toString() {

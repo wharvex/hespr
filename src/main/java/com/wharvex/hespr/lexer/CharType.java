@@ -12,6 +12,9 @@ public enum CharType {
   // A decimal point is ASCII char code 46
   // A space is ASCII char code 32
   SPACE(32),
+  BANG(33),
+  PIPE(124),
+  TILDE(126),
   DECIMAL(46),
   STAR(42),
   PLUS(43),
@@ -32,6 +35,7 @@ public enum CharType {
   LCURLY(123),
   RCURLY(125),
   DOLLAR(36),
+  UNDERSCORE(95),
   NONE(false);
   int[] range; // The range of ASCII character codes that fit the CharType
 

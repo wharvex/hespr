@@ -40,6 +40,10 @@ public enum TokenType {
   NOTEQUAL(TokenTypeType.OPERATOR),
   ASSIGN(TokenTypeType.OPERATOR),
   ARROW(TokenTypeType.OPERATOR),
+  UNDERSCORE(TokenTypeType.OPERATOR),
+  BANG(TokenTypeType.OPERATOR),
+  PIPE(TokenTypeType.OPERATOR),
+  TILDE(TokenTypeType.OPERATOR),
   VAR(TokenTypeType.OPERATOR),
   // LITERAL
   CHARACTERLITERAL(TokenTypeType.LITERAL),

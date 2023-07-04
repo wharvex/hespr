@@ -131,6 +131,17 @@ public enum StateType {
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
       TokenType.VAR), // tokenType
+  UNDERSCORE(
+      CharType.UNDERSCORE, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
+      TokenType.UNDERSCORE), // tokenType
   LPAREN(
       CharType.LPAREN, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -164,6 +175,39 @@ public enum StateType {
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
       TokenType.LSQUARE), // tokenType
+  BANG(
+      CharType.BANG, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
+      TokenType.BANG), // tokenType
+  PIPE(
+      CharType.PIPE, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
+      TokenType.PIPE), // tokenType
+  TILDE(
+      CharType.TILDE, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
+      TokenType.TILDE), // tokenType
   RSQUARE(
       CharType.RSQUARE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -180,7 +224,7 @@ public enum StateType {
       new CharType[]{}, // continueCharTypes
       CharType.NONE, // stopCharType
       CharType.NONE, // morphedFromCharType
-      new CharType[]{}, // morphToCharTypes
+      new CharType[]{CharType.UNDERSCORE}, // morphToCharTypes
       CharType.NONE, // morphIdentifier
       false, // spansLines
       -1, // minCharLen
@@ -191,7 +235,7 @@ public enum StateType {
       new CharType[]{}, // continueCharTypes
       CharType.NONE, // stopCharType
       CharType.NONE, // morphedFromCharType
-      new CharType[]{CharType.EQUALS}, // morphToCharTypes
+      new CharType[]{}, // morphToCharTypes
       CharType.NONE, // morphIdentifier
       false, // spansLines
       -1, // minCharLen
@@ -256,9 +300,9 @@ public enum StateType {
       CharType.NONE, // startCharType
       new CharType[]{}, // continueCharTypes
       CharType.NONE, // stopCharType
-      CharType.COLON, // morphedFromCharType
+      CharType.EQUALS, // morphedFromCharType
       new CharType[]{}, // morphToCharTypes
-      CharType.EQUALS, // morphIdentifier
+      CharType.UNDERSCORE, // morphIdentifier
       false, // spansLines
       -1, // minCharLen
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
