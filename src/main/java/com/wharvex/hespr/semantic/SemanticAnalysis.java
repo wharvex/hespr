@@ -4,7 +4,7 @@ import com.wharvex.hespr.parser.nodes.AssignmentNode;
 import com.wharvex.hespr.parser.nodes.BooleanNode;
 import com.wharvex.hespr.parser.nodes.ForNode;
 import com.wharvex.hespr.parser.nodes.FunctionNode;
-import com.wharvex.hespr.parser.nodes.IfNode;
+import com.wharvex.hespr.parser.nodes.WhenNode;
 import com.wharvex.hespr.parser.nodes.IntegerNode;
 import com.wharvex.hespr.parser.nodes.MathOpNode;
 import com.wharvex.hespr.parser.nodes.Node;
@@ -19,6 +19,7 @@ import com.wharvex.hespr.parser.VariableType;
 import com.wharvex.hespr.parser.nodes.WhileNode;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class SemanticAnalysis {
 
@@ -83,12 +84,12 @@ public class SemanticAnalysis {
         this.analyzeBlock(varTypes, ((WhileNode) statement).getStatements(), funcName);
       } else if (statement instanceof RepeatNode) {
         this.analyzeBlock(varTypes, ((RepeatNode) statement).getStatements(), funcName);
-      } else if (statement instanceof IfNode) {
-        this.analyzeBlock(varTypes, ((IfNode) statement).getStatements(), funcName);
-        IfNode nextIf = ((IfNode) statement).getNextIf();
-        while (nextIf != null) {
-          this.analyzeBlock(varTypes, nextIf.getStatements(), funcName);
-          nextIf = nextIf.getNextIf();
+      } else if (statement instanceof WhenNode) {
+        this.analyzeBlock(varTypes, ((WhenNode) statement).getStatements(), funcName);
+        Optional<WhenNode> possibleNextWhen = ((WhenNode) statement).getNextWhen();
+        while (possibleNextWhen.isPresent()) {
+          this.analyzeBlock(varTypes, possibleNextWhen.get().getStatements(), funcName);
+          possibleNextWhen = possibleNextWhen.get().getNextWhen();
         }
       }
     }

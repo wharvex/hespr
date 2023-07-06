@@ -1,5 +1,9 @@
 package com.wharvex.hespr.lexer;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 /**
  * Each StateType has charTypes that can start, continue, morph, or stop the state.
  *
@@ -22,16 +26,39 @@ public enum StateType {
       new CharType[]{CharType.RCURLY, CharType.OTHER}, // errorCharTypes
       TokenType.RAW_INDENT), // tokenType
   COMMENT(
-      CharType.LCURLY, // startCharType
-      new CharType[]{}, // continueCharTypes
-      CharType.RCURLY, // stopCharType
-      CharType.NONE, // morphedFromCharType
+      CharType.NONE, // startCharType
+      new CharType[]{CharType.ANY_EXCEPT_RCURLY}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.LCURLY, // morphedFromCharType
       new CharType[]{}, // morphToCharTypes
-      CharType.NONE, // morphIdentifier
+      CharType.LCURLY, // morphIdentifier
       true, // spansLines
       -1, // minCharLen
       new CharType[]{}, // errorCharTypes
       TokenType.NONE),
+  LCURLY(
+      CharType.LCURLY, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{CharType.LCURLY}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{}, // errorCharTypes
+      TokenType.LCURLY),
+  RCURLY(
+      CharType.RCURLY, // startCharType
+      new CharType[]{CharType.RCURLY}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      2, // minCharLen
+      new CharType[]{}, // errorCharTypes
+      TokenType.LCURLY,
+      2),
   STRINGLITERAL(
       CharType.DBLQUOTE, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -372,12 +399,38 @@ public enum StateType {
       false, // spansLines
       -1, // minCharLen
       new CharType[]{}, // errorCharTypes
+      TokenType.NONE), // tokenType
+  NONE(
+      CharType.NONE, // startCharType
+      new CharType[]{}, // continueCharTypes
+      CharType.NONE, // stopCharType
+      CharType.NONE, // morphedFromCharType
+      new CharType[]{}, // morphToCharTypes
+      CharType.NONE, // morphIdentifier
+      false, // spansLines
+      -1, // minCharLen
+      new CharType[]{}, // errorCharTypes
       TokenType.NONE); // tokenType
   CharType startCharType, morphedFromCharType, morphIdentifier, stopCharType;
   CharType[] continueCharTypes, morphToCharTypes, errorCharTypes;
   TokenType tokenType; // The TokenType associated with the state
   boolean spansLines;
   int minCharLen;
+
+  private static final class Helper {
+
+    static Map<StateType, Integer> MAX_CHAR_LEN = new HashMap<>();
+  }
+
+  static {
+    for (StateType st : values()) {
+      Helper.MAX_CHAR_LEN.put(st, -1);
+    }
+  }
+
+  public static Optional<Integer> getMaxCharLen(StateType st) {
+    return Optional.ofNullable(Helper.MAX_CHAR_LEN.get(st));
+  }
 
   StateType(
       CharType startCharType,
@@ -400,5 +453,30 @@ public enum StateType {
     this.minCharLen = minCharLen;
     this.errorCharTypes = errorCharTypes;
     this.tokenType = tokenType;
+  }
+
+  StateType(
+      CharType startCharType,
+      CharType[] continueCharTypes,
+      CharType stopCharType,
+      CharType morphedFromCharType,
+      CharType[] morphToCharTypes,
+      CharType morphIdentifier,
+      boolean spansLines,
+      int minCharLen,
+      CharType[] errorCharTypes,
+      TokenType tokenType,
+      int maxCharLen) {
+    this.startCharType = startCharType;
+    this.continueCharTypes = continueCharTypes;
+    this.stopCharType = stopCharType;
+    this.morphedFromCharType = morphedFromCharType;
+    this.morphToCharTypes = morphToCharTypes;
+    this.morphIdentifier = morphIdentifier;
+    this.spansLines = spansLines;
+    this.minCharLen = minCharLen;
+    this.errorCharTypes = errorCharTypes;
+    this.tokenType = tokenType;
+    Helper.MAX_CHAR_LEN.put(this, maxCharLen);
   }
 }

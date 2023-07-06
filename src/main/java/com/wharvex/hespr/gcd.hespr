@@ -1,4 +1,4 @@
-{ comment}
+{{ comment }}
 
 
 blok gcdIter|a b $divisor, int|
@@ -13,34 +13,34 @@ flux newA newB remainder, int
 
 
 blok gcdRec|a b $divisor, int|
-     when b = 0 then
+     when b = 0
           divisor =_ a
      else
           gcdRec! b (a mod b) $divisor
 
-blok yes~
+blok yes||
      Write! "yes"
 
-blok start~
+blok load||
 flux divisorArg divisorArg2 a, int
 flux myStr myStr2, str 1 -> 5
 flux myArr, str arr 5 -> 7
 perm myStr3 "what"; myInt (5 + 7); myInt2 99
-     { expected output: 1 }
+     {{ expected output: 1 }}
      gcdRec! 57 (25 + 1) $divisorArg
      Write! ("GCD of 57 and 26. Expected: 1. Calculated: " + divisorArg)
      with divisorArg2: (a + 5) -> 6
           myStr =_ myStr + 5
 
-     { Expected output: 5 }
+     {{ Expected output: 5 }}
      gcdIter! 55 25 $divisorArg
      Write! ("GCD of 55 and 25. Expected: 5. Calculated: " + divisorArg)
 
-     { Expected output: 4 }
+     {{ Expected output: 4 }}
      gcdRec! 460 64 $divisorArg
      Write! ("GCD of 460 and 64. Expected: 4. Calculated: " + divisorArg)
 
-     { Expected output: 9 }
+     {{ Expected output: 9 }}
      gcdIter! 1035 747 $divisorArg
      Write! "GCD of 1035 and 747. Expected: 9. Calculated:" divisorArg
      yes!

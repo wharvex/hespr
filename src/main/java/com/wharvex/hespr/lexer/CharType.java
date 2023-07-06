@@ -36,8 +36,10 @@ public enum CharType {
   RCURLY(125),
   DOLLAR(36),
   UNDERSCORE(95),
-  NONE(false);
+  NONE(false),
+  ANY_EXCEPT_RCURLY(true, 125);
   int[] range; // The range of ASCII character codes that fit the CharType
+  Integer except;
 
   /**
    * Use this constructor for character ranges.
@@ -61,7 +63,13 @@ public enum CharType {
    */
   CharType(boolean catchAll) {
     if (catchAll) {
-      this.range = IntStream.rangeClosed(0, 127).toArray();
+      this.range = IntStream.range(0, 127).toArray();
+    }
+  }
+
+  CharType(boolean catchAll, int except) {
+    if (catchAll) {
+      this.except = except;
     }
   }
 }

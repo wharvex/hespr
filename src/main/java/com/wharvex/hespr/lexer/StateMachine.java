@@ -1,5 +1,8 @@
 package com.wharvex.hespr.lexer;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.wharvex.hespr.ExcType;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -182,11 +185,15 @@ public class StateMachine {
    */
   public void assessIndent() {
     int rawIndentsQty = this.getTotalTokensOfGivenTypeThisLine(TokenType.RAW_INDENT);
+    int lcurlyRcurlyQty = this.getTotalTokensOfGivenTypeThisLine(TokenType.LCURLY)
+        + this.getTotalTokensOfGivenTypeThisLine(
+        TokenType.RCURLY);
     int totalTokensThisLine = this.getTotalTokensThisLine();
     // If there are no non-space/tab characters (i.e. if there are ONLY space/tab characters) on the
     // line, don’t output an INDENT or DEDENT and don’t change the stored indentation level.
     // (If you call assessIndent after adding the ENDOFLINE token, this ternary won't work properly)
-    int indentLevel = totalTokensThisLine == rawIndentsQty ? this.getIndentLevel() : rawIndentsQty;
+    int indentLevel = totalTokensThisLine - lcurlyRcurlyQty == rawIndentsQty ? this.getIndentLevel()
+        : rawIndentsQty;
     int indentsDiff = indentLevel - this.getIndentLevel();
     this.setIndentLevel(indentLevel);
     TokenType IndentOrDedent =
@@ -221,10 +228,27 @@ public class StateMachine {
    * @return
    */
   public boolean curStateValidAsIs() {
-    // if (this.curStateAtMaxCharLim())
-    //   return !this.curStateNeedsClosure(
-    //       SyntaxErrorException.ExcType.TOO_MANY_CHARS);
-    return !(this.curStateBelowMinCharLim() || this.curStateNeedsClosure());
+    if (this.curStateOverMaxCharLim()) {
+      this.setExceptionDetails(ExcType.TOO_MANY_CHARS, "");
+      return false;
+    }
+    if (this.curStateNeedsClosure()) {
+      this.setExceptionDetails(ExcType.NEEDS_CLOSURE, "");
+      return false;
+    }
+    if (this.curStateBelowMinCharLim()) {
+      this.setExceptionDetails(ExcType.NOT_ENOUGH_CHARS, "");
+      return false;
+    }
+    return true;
+  }
+
+  private boolean curStateOverMaxCharLim() {
+    int maxCharLen = StateType.getMaxCharLen(this.getCurState()).orElse(-1);
+    if (maxCharLen == -1) {
+      return false;
+    }
+    return this.getTVSTLen() > maxCharLen;
   }
 
   /**
@@ -342,7 +366,7 @@ public class StateMachine {
    * @return
    */
   public boolean curCharCanStartState() {
-    return !(this.isCurCharOther() || this.isCurCharRCurly());
+    return !this.isCurCharOther();
   }
 
   /**
@@ -597,13 +621,19 @@ public class StateMachine {
   private int getPrevLineEndIdxAndRemoveRawIndents() {
     int prevLineEndTokenIdx = -1;
     for (int i = this.tokens.size() - 1; i >= 0; i--) {
-      if (this.tokens.get(i).getTokenType() == TokenType.RAW_INDENT) {
+      if (this.tokens.get(i).getTokenType() == TokenType.RAW_INDENT
+          || this.tokens.get(i).getTokenType() == TokenType.LCURLY
+          || this.tokens.get(i).getTokenType() == TokenType.RCURLY) {
         this.tokens.remove(i);
       }
+      if (this.tokens.size() == 0) {
+        return -1;
+      }
       // Do this to avoid index out of bounds error which happens when the line is all spaces
-      int indexToCheck = i == this.tokens.size() ? i - 1 : i;
+      int indexToCheck = min(max(0, i), this.tokens.size() -1);
       // No need to traverse tokens from earlier lines
-      if (this.tokens.get(indexToCheck).getTokenLineNum() < this.getCurLineNum()) {
+      if (this.tokens.size() > 0
+          && this.tokens.get(indexToCheck).getTokenLineNum() < this.getCurLineNum()) {
         prevLineEndTokenIdx = indexToCheck;
         break;
       }
@@ -657,7 +687,8 @@ public class StateMachine {
    */
   private boolean charTypeInColl(CharType charType, CharType[] coll) {
     for (CharType ct : coll) {
-      if (charType == ct) {
+      if (charType == ct || (ct.except != null
+          && this.getGivenCharType((char) ct.except.intValue()) != charType)) {
         return true;
       }
     }

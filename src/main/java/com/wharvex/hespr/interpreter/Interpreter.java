@@ -8,7 +8,7 @@ import com.wharvex.hespr.parser.nodes.CharacterNode;
 import com.wharvex.hespr.parser.nodes.ForNode;
 import com.wharvex.hespr.parser.nodes.FunctionCallNode;
 import com.wharvex.hespr.parser.nodes.FunctionNode;
-import com.wharvex.hespr.parser.nodes.IfNode;
+import com.wharvex.hespr.parser.nodes.WhenNode;
 import com.wharvex.hespr.parser.nodes.IntegerNode;
 import com.wharvex.hespr.parser.nodes.MathOpNode;
 import com.wharvex.hespr.parser.nodes.Node;
@@ -25,6 +25,7 @@ import com.wharvex.hespr.parser.builtins.BuiltinBase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class Interpreter {
 
@@ -47,7 +48,7 @@ public class Interpreter {
   }
 
   public void startProgram() throws Exception {
-    this.interpretFunction(this.getFunction("start"), new ArrayList<>());
+    this.interpretFunction(this.getFunction("load"), new ArrayList<>());
   }
 
   private InterpreterDataType makeDataTypeFromVarNode(VariableNode v,
@@ -232,26 +233,26 @@ public class Interpreter {
           this.interpretBlock(((RepeatNode) statementNode).getStatements(), vars);
         }
 //        System.out.println("\n\n[[End RepeatUntil Loop " + condition + "]]");
-      } else if (statementNode instanceof IfNode) {
-        Node condition = ((IfNode) statementNode).getCondition();
+      } else if (statementNode instanceof WhenNode) {
+        Node condition = ((WhenNode) statementNode).getCondition();
         this.expectsBool(condition, "If");
 //        System.out.println("\n\n[[Begin If Statement " + condition + "]]");
         if (this.booleanCompare((BooleanCompareNode) condition, vars)) {
-          this.interpretBlock(((IfNode) statementNode).getStatements(), vars);
+          this.interpretBlock(((WhenNode) statementNode).getStatements(), vars);
         } else {
-          IfNode nextIf = ((IfNode) statementNode).getNextIf();
-          while (nextIf != null) {
-            if (nextIf.getIfOrElsifOrElse() == TokenType.ELSE) {
-              this.interpretBlock(nextIf.getStatements(), vars);
+          Optional<WhenNode> possibleNextWhen = ((WhenNode) statementNode).getNextWhen();
+          while (possibleNextWhen.isPresent()) {
+            if (possibleNextWhen.get().getWhenOrElifOrElse() == TokenType.ELSE) {
+              this.interpretBlock(possibleNextWhen.get().getStatements(), vars);
               break;
             } else {
-              condition = nextIf.getCondition();
+              condition = possibleNextWhen.get().getCondition();
               this.expectsBool(condition, "If");
               if (this.booleanCompare((BooleanCompareNode) condition, vars)) {
-                this.interpretBlock(nextIf.getStatements(), vars);
+                this.interpretBlock(possibleNextWhen.get().getStatements(), vars);
                 break;
               } else {
-                nextIf = nextIf.getNextIf();
+                possibleNextWhen = possibleNextWhen.get().getNextWhen();
               }
             }
           }

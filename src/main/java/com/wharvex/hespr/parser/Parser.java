@@ -500,29 +500,26 @@ public class Parser {
         this.getCurTokenLineNum());
   }
 
-  private IfNode parseIf() throws Exception {
+  private WhenNode parseIf() throws Exception {
     Token ifOrElsifOrElse = this.getPrevToken();
     List<StatementNode> statements;
     if (ifOrElsifOrElse.getTokenType() != TokenType.ELSE) {
       Node condition = this.parseBoolCompare();
-      this.optionalMatchAndRemoveTokenSafe(TokenType.THEN)
-          .orElseThrow(() -> new SyntaxErrorException(
-              TokenType.THEN, this.getCurToken()));
       this.expectsEndOfLine();
       statements = this.parseStatements()
           .orElseThrow(() -> new SyntaxErrorException(ifOrElsifOrElse));
       if (optionalMatchAndRemoveTokenSafe(List.of(TokenType.ELIF, TokenType.ELSE)).isPresent()) {
-        return new IfNode(condition, statements, this.parseIf(), ifOrElsifOrElse.getTokenType(),
+        return new WhenNode(condition, statements, this.parseIf(), ifOrElsifOrElse.getTokenType(),
             ifOrElsifOrElse.getTokenLineNum());
       } else {
-        return new IfNode(condition, statements, ifOrElsifOrElse.getTokenType(),
+        return new WhenNode(condition, statements, ifOrElsifOrElse.getTokenType(),
             ifOrElsifOrElse.getTokenLineNum());
       }
     } else {
       this.expectsEndOfLine();
       statements = this.parseStatements()
           .orElseThrow(() -> new SyntaxErrorException(ifOrElsifOrElse));
-      return new IfNode(statements, ifOrElsifOrElse.getTokenType());
+      return new WhenNode(statements, ifOrElsifOrElse.getTokenType());
     }
   }
 

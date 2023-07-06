@@ -60,6 +60,8 @@ public enum TokenType {
   RPAREN(TokenTypeType.PUNCTUATION),
   LSQUARE(TokenTypeType.PUNCTUATION),
   RSQUARE(TokenTypeType.PUNCTUATION),
+  LCURLY(TokenTypeType.PUNCTUATION),
+  RCURLY(TokenTypeType.PUNCTUATION),
   // GENERAL
   IDENTIFIER(TokenTypeType.GENERAL),
   NUMBER(TokenTypeType.GENERAL),
