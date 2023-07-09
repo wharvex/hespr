@@ -72,11 +72,10 @@ public class SemanticAnalysis {
         if (rightSideType != leftSideType && rightSideType != VariableType.ANY
             && leftSideType != VariableType.ANY) {
           throw new Exception(
-              "\nSEMANTIC ANALYSIS ERROR\nWhen assigning to variable <" + leftSideName
-                  + "> in function <"
-                  + funcName
-                  + ">\nRight side of assignment must be of type " + leftSideType + " but it is "
-                  + rightSideType);
+              "\nSEMANTIC ANALYSIS ERROR"
+                  + "\nFor right side of assignment on line " + rightSide.getLineNum()
+                  + "\n in function <" + funcName + ">"
+                  + "\nExpected: " + leftSideType + "; Found: " + rightSideType);
         }
       } else if (statement instanceof ForNode) {
         this.analyzeBlock(varTypes, ((ForNode) statement).getStatements(), funcName);

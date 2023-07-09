@@ -258,7 +258,7 @@ public class Parser {
         return new StringNode(factorToken.getValueString(), factorToken.getTokenLineNum());
       }
       case CHARACTERLITERAL -> {
-        return new CharacterNode(factorToken.getValueString().charAt(0),
+        return new CharacterNode(factorToken.getValueString().charAt(1),
             factorToken.getTokenLineNum());
       }
       default -> throw new SyntaxErrorException(ParserHelper.factorTypes, this.getCurToken());

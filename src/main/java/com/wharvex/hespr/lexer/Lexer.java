@@ -78,9 +78,13 @@ public class Lexer {
         case STOP_STATE_AS_MEMBER:
         case STOP_STATE_AS_MEMBER_LINE_END:
           this.stateMachine.accTokenIfNeeded();
-          this.stateMachine.emitTokenIfNeeded();
-          this.stateMachine.switchToOutsideState();
-          break;
+          if (this.stateMachine.curStateValidAsIs()) {
+            this.stateMachine.emitTokenIfNeeded();
+            this.stateMachine.switchToOutsideState();
+            break;
+          } else {
+            this.stateMachine.switchToErrorState();
+          }
         case START_STATE:
           this.stateMachine.setCurState(this.stateMachine.getStartState());
           this.stateMachine.accTokenIfNeeded();

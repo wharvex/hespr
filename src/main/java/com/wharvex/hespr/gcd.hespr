@@ -1,6 +1,5 @@
 {{ comment }}
 
-
 blok gcdIter|a b $divisor, int|
 flux newA newB remainder, int
      newA =_ a
@@ -25,12 +24,15 @@ blok load||
 flux divisorArg divisorArg2 a, int
 flux myStr myStr2, str 1 -> 5
 flux myArr, str arr 5 -> 7
-perm myStr3 "what"; myInt (5 + 7); myInt2 99
+flux myChar2, char
+perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
      {{ expected output: 1 }}
      gcdRec! 57 (25 + 1) $divisorArg
+     myChar2 =_ 'b'
      Write! ("GCD of 57 and 26. Expected: 1. Calculated: " + divisorArg)
-     with divisorArg2: (a + 5) -> 6
+     with divisorArg2: (a + 5) -> 20
           myStr =_ myStr + 5
+     myArr[4] =_ "hi"
 
      {{ Expected output: 5 }}
      gcdIter! 55 25 $divisorArg
@@ -45,5 +47,5 @@ perm myStr3 "what"; myInt (5 + 7); myInt2 99
      Write! "GCD of 1035 and 747. Expected: 9. Calculated:" divisorArg
      yes!
      myStr2 =_ "when"
-     Write! myStr myInt myStr2
+     Write! myStr myInt myStr2 myChar myChar2
      Write! ""

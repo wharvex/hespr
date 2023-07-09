@@ -59,7 +59,7 @@ public class ParserHelper {
       TokenType.NOTEQUAL, TokenType.EQUALS);
   static final List<TokenType> expOpTypes = List.of(TokenType.MINUS, TokenType.PLUS);
   static final List<TokenType> expOrTermEndTypes = List.of(TokenType.RPAREN,
-      TokenType.ENDOFLINE, TokenType.THEN, TokenType.COMMA);
+      TokenType.ENDOFLINE, TokenType.THEN, TokenType.COMMA, TokenType.RSQUARE);
   static final List<TokenType> numberTypes = List.of(TokenType.NUMBER, TokenType.NUMBER_DECIMAL);
 
   public static String listToString(List<?> l) {

@@ -626,14 +626,13 @@ public class StateMachine {
           || this.tokens.get(i).getTokenType() == TokenType.RCURLY) {
         this.tokens.remove(i);
       }
-      if (this.tokens.size() == 0) {
+      if (this.getTokensLength() == 0) {
         return -1;
       }
       // Do this to avoid index out of bounds error which happens when the line is all spaces
-      int indexToCheck = min(max(0, i), this.tokens.size() -1);
+      int indexToCheck = min(i, this.tokens.size() - 1);
       // No need to traverse tokens from earlier lines
-      if (this.tokens.size() > 0
-          && this.tokens.get(indexToCheck).getTokenLineNum() < this.getCurLineNum()) {
+      if (this.tokens.get(indexToCheck).getTokenLineNum() < this.getCurLineNum()) {
         prevLineEndTokenIdx = indexToCheck;
         break;
       }

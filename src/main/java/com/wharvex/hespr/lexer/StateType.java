@@ -78,9 +78,10 @@ public enum StateType {
       new CharType[]{}, // morphToCharTypes
       CharType.NONE, // morphIdentifier
       false, // spansLines
-      2, // minCharLen
+      3, // minCharLen
       new CharType[]{}, // errorCharTypes
-      TokenType.CHARACTERLITERAL),
+      TokenType.CHARACTERLITERAL,
+      3),
   STAR(
       CharType.STAR, // startCharType
       new CharType[]{}, // continueCharTypes
@@ -422,11 +423,11 @@ public enum StateType {
     static Map<StateType, Integer> MAX_CHAR_LEN = new HashMap<>();
   }
 
-  static {
-    for (StateType st : values()) {
-      Helper.MAX_CHAR_LEN.put(st, -1);
-    }
-  }
+////  static {
+////    for (StateType st : values()) {
+////      Helper.MAX_CHAR_LEN.put(st, -1);
+////    }
+//  }
 
   public static Optional<Integer> getMaxCharLen(StateType st) {
     return Optional.ofNullable(Helper.MAX_CHAR_LEN.get(st));
