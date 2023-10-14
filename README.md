@@ -1,5 +1,5 @@
 # hespr
-A modified version of Shank, a modern procedural statically typed simple programming language.  
+A modified version of Shank, the modern procedural statically typed simple systems language.  
   
 You should be able to clone the repo and then open the root project folder in IntelliJ Idea and run the main class (com.wharvex.hespr.Hespr) with exactly one command line argument that is the filepath of a hespr file. A file with the GCD algorithm as well as some feature demonstrations in hespr is provided at hespr/src/main/java/com/wharvex/hespr/gcd.hespr  
   
