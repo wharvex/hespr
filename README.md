@@ -6,14 +6,16 @@ A modified version of Shank—the modern, procedural, statically-typed, simple s
 
 ### From IntelliJ
 
-Clone the repo, open the root project folder in IntelliJ Idea, then run the main class (
-com.wharvex.hespr.Hespr) with exactly one command line argument: the filepath of a hespr file.  
-A file written in hespr that implements the GCD algorithm and demonstrates some features of hespr is
-provided in the root project folder and named `gcd.hespr`
+* Clone the repo.
+* Open the root project folder in IntelliJ Idea.
+* Run the main class (`com.wharvex.hespr.Hespr`) with exactly one command line argument: the
+  filepath of a hespr file.
+* A file written in hespr that implements the GCD algorithm and demonstrates some features of hespr
+  is provided in the root project folder and named `gcd.hespr`
 
 ### From Command Line
 
-Make sure you have Java and Maven installed, then run the following commands (tested in Linux):
+Make sure you have Java and Maven installed, then run the following commands (tested in Linux/bash):
 
 ```
 git clone https://github.com/wharvex/hespr.git
@@ -39,6 +41,8 @@ I wanted hespr to have a distinctive look but the same basic functionality as Sh
 * Shank's "from" and "to" are replaced by an arrow syntax (`->`).
 * Shank's assignment operator (`:=`) is replaced by what I call "the shovel" (`=_`), which you can
   think of as shoveling the value to the right of it back into the variable to the left of it.
+* Parentheses enclosing parameter declarations are replaced by pipe characters (`|`).
+    * I wanted parentheses to only signify the enclosure of a math operation.
 
 ### Keyword Replacements
 
@@ -59,6 +63,7 @@ I wanted hespr to have a distinctive look but the same basic functionality as Sh
 | `str`  | `string`    |
 | `int`  | `integer`   |
 | `arr`  | `array`     |
+| `$`    | `var`       |
 
 ## Example
 
@@ -85,10 +90,13 @@ blok yes||
      Write! "yes"
 
 blok load||
+{{ Next line: three variables named divisorArg, divisorArg2, and a, all of type int, are declared }}
 flux divisorArg divisorArg2 a, int
+{{ Next line: two variables named myStr and myStr2 of type string with length range 1 to 5 are declared }}
 flux myStr myStr2, str 1 -> 5
 flux myArr, str arr 5 -> 7
 flux myChar2, char
+{{ Next line: a constant with name myStr3 and value "what" is declared. Another constant with name myInt and value (5 + 7) is declared. etc... }}
 perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
      {{ expected output: 1 }}
      gcdRec! 57 (25 + 1) $divisorArg
@@ -121,3 +129,4 @@ perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
 * Rework Lexer.
 * Rework Interpreter and/or write compiler.
 * Make error handling more systematic/better organized.
+* Make variable range declarations binding.
