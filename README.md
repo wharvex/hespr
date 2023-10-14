@@ -19,18 +19,20 @@ I wanted hespr to have a distinctive look but the same basic functionality as Sh
 * Every keyword is four letters long and indents are 5 spaces long, giving the code a kind of "aligned" look. 
 * Builtin functions start with a capital letter.
 * Function calls are the function name followed by a bang (!) followed by space-separated arguments.
-* Several other changes were made to the main symbols used in Shank's syntax.
+  * If an argument is a math operation, it must be surrounded by parentheses.
+* "from" and "to" are replaced by an arrow syntax (->).
 ### Keyword Replacements
 | hespr | Shank |
-| ---- | --- |
-| blok | define |
-| flux | variables |
-| perm | constants |
-| with | for |
-| whil | while |
-| when | if |
-| elif | elsif |
-| else | else |
+| :--- | :--- |
+| `blok` | `define` |
+| `flux` | `variables` |
+| `perm` | `constants` |
+| `with` | `for` |
+| `whil` | `while` |
+| `till` | `repeat` |
+| `when` | `if` |
+| `elif` | `elsif` |
+| `else` | `else` |
 ## Example
 ```
 {{ comment }}
