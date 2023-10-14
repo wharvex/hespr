@@ -126,7 +126,7 @@ perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
 ## TODO
 
 * Fix parsing logic to allow different parameter types in a function declaration.
-* Rework Lexer.
+* Rework Lexer (see [lexer_overview](https://github.com/wharvex/hespr/blob/main/lexer_overview.pdf).
 * Rework Interpreter and/or write compiler.
 * Make error handling more systematic/better organized.
 * Make variable range declarations binding.
