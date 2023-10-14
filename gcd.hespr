@@ -20,8 +20,11 @@ blok gcdRec|a b $divisor, int|
 blok yes||
      Write! "yes"
 
-blok no|a, int; b, str|
-     Write! a b
+{{ TODO: make the following syntax work properly
+blok no|a, int; b, str| }}
+
+blok no|a, int|
+     Write! "high" 5
 
 blok load||
 flux divisorArg divisorArg2 a, int
@@ -52,4 +55,4 @@ perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
      myStr2 =_ "when"
      Write! myStr myInt myStr2 myChar myChar2
      Write! ""
-     no! 5 "y"
+     no! 5
