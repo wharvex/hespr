@@ -8,7 +8,7 @@ A modified version of Shank—the modern, procedural, statically-typed, simple s
 
 * Clone the repo.
 * Open the root project folder in IntelliJ Idea.
-* Run the main class (`com.wharvex.hespr.Hespr`) with exactly one command line argument: the
+* Run the main class `com.wharvex.hespr.Hespr` with exactly one command line argument: the
   filepath of a hespr file.
 * A file written in hespr that implements the GCD algorithm and demonstrates some features of hespr
   is provided in the root project folder and named `gcd.hespr`
@@ -35,14 +35,15 @@ I wanted hespr to have a distinctive look but the same basic functionality as Sh
 * Every keyword that can start a line is four letters long and indents are 5 spaces long, giving the
   code a kind of "aligned" look.
 * Builtin functions start with a capital letter.
-* Function calls are the function name followed by a bang (`!`) followed by space-separated
+* Function calls are the function name followed by a bang `!` followed by space-separated
   arguments.
     * If an argument is a math operation, it must be surrounded by parentheses.
-* Shank's "from" and "to" are replaced by an arrow syntax (`->`).
-* Shank's assignment operator (`:=`) is replaced by what I call "the shovel" (`=_`), which you can
+* Shank's "from" and "to" are replaced by an arrow syntax `->`.
+* Shank's assignment operator `:=` is replaced by what I call "the shovel" `=_`, which you can
   think of as shoveling the value to the right of it back into the variable to the left of it.
-* Parentheses enclosing parameter declarations are replaced by pipe characters (`|`).
+* Parentheses enclosing parameter declarations are replaced by pipe characters `|`.
     * I wanted parentheses to only signify the enclosure of a math operation.
+* The main function `start` is renamed to `load`.
 
 ### Keyword Replacements
 
@@ -126,7 +127,9 @@ perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
 ## TODO
 
 * Fix parsing logic to allow different parameter types in a function declaration.
-* Rework Lexer (see [lexer_overview](https://github.com/wharvex/hespr/blob/main/lexer_overview.pdf).
+* Rework Lexer.
+    * See [lexer_overview](https://github.com/wharvex/hespr/blob/main/lexer_overview.pdf).
 * Rework Interpreter and/or write compiler.
 * Make error handling more systematic/better organized.
 * Make variable range declarations binding.
+* Add documentation.
