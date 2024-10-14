@@ -4,18 +4,23 @@ A modified version of Shank—the modern, procedural, statically-typed, simple s
 
 ## Run
 
-### From IntelliJ
+### From Command Line PowerShell (Tested on Windows 11, 10/14/2024)
+
+```
+git clone https://github.com/wharvex/hespr.git
+cd hespr
+mvn clean install
+mvn exec:java -D"exec.mainClass"="com.wharvex.hespr.Hespr" -D"exec.args"="gcd.hespr"
+```
+
+### From IntelliJ (Tested 2023)
 
 * Clone the repo.
 * Open the root project folder in IntelliJ Idea.
-* Run the main class `com.wharvex.hespr.Hespr` with exactly one command line argument: the
-  filepath of a hespr file.
-* A file written in hespr that implements the GCD algorithm and demonstrates some features of hespr
-  is provided in the root project folder and named `gcd.hespr`
+* Run the main class `com.wharvex.hespr.Hespr` with exactly one command line argument: the filepath of a `.hespr` file.
+  * A sample file named `gcd.hespr` is provided in the project root.
 
-### From Command Line
-
-Make sure you have Java and Maven installed, then run the following commands (tested in Linux/bash):
+### From Command Line Bash (Tested 2023)
 
 ```
 git clone https://github.com/wharvex/hespr.git

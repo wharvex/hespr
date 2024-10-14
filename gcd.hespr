@@ -17,45 +17,17 @@ blok gcdRec|a b $divisor, int|
      else
           gcdRec! b (a mod b) $divisor
 
-blok yes||
-     Write! "yes"
-
-{{ TODO: make the following syntax work properly
-blok no|a, int; b, str| }}
-
-blok no|a, int|
-     Write! "high" 5
-
 blok load||
-{{ Next line: three variables named divisorArg, divisorArg2, and a, all of type int, are declared }}
-flux divisorArg divisorArg2 a, int
-{{ Next line: two variables named myStr and myStr2 of type string with length range 1 to 5 are declared }}
-flux myStr myStr2, str 1 -> 5
-flux myArr, str arr 5 -> 7
-flux myChar2, char
-{{ Next line: a constant with name myStr3 and value "what" is declared. Another constant with name myInt and value (5 + 7) is declared. etc... }}
-perm myStr3 "what"; myInt (5 + 7); myInt2 99; myChar 'a'
-     {{ expected output: 1 }}
-     gcdRec! 57 (25 + 1) $divisorArg
-     myChar2 =_ 'b'
+flux divisorArg, int
+     gcdRec! 57 26 $divisorArg
      Write! ("GCD of 57 and 26. Expected: 1. Calculated: " + divisorArg)
-     with divisorArg2: (a + 5) -> 20
-          myStr =_ myStr + 5
-     myArr[4] =_ "hi"
 
-     {{ Expected output: 5 }}
      gcdIter! 55 25 $divisorArg
      Write! ("GCD of 55 and 25. Expected: 5. Calculated: " + divisorArg)
 
-     {{ Expected output: 4 }}
      gcdRec! 460 64 $divisorArg
      Write! ("GCD of 460 and 64. Expected: 4. Calculated: " + divisorArg)
 
-     {{ Expected output: 9 }}
      gcdIter! 1035 747 $divisorArg
      Write! "GCD of 1035 and 747. Expected: 9. Calculated:" divisorArg
-     yes!
-     myStr2 =_ "when"
-     Write! myStr myInt myStr2 myChar myChar2
      Write! ""
-     no! 5
